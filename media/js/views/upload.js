@@ -17,11 +17,11 @@ Dropzone && (Dropzone.autoDiscover = false);
         },
         initialize: function(options) {
             this.template = $('#template-upload').html();
-            this.rooms = options.rooms;
-            this.rooms.current.on('change:id', this.setRoom, this);
-            this.rooms.on('add remove', this.populateRooms, this);
-            this.rooms.on('change:joined', this.populateRooms, this);
-            this.rooms.on('upload:show', this.show, this);
+            this.topics = options.topics;
+            this.topics.current.on('change:id', this.setTopic, this);
+            this.topics.on('add remove', this.populateTopics, this);
+            this.topics.on('change:joined', this.populateTopics, this);
+            this.topics.on('upload:show', this.show, this);
             this.render();
         },
         render: function() {
@@ -48,7 +48,7 @@ Dropzone && (Dropzone.autoDiscover = false);
             //
             // Selectize
             //
-            this.selectize = this.$('select[name="room"]').selectize({
+            this.selectize = this.$('select[name="topic"]').selectize({
                 valueField: 'id',
 				labelField: 'name',
 				searchField: 'name'
@@ -57,7 +57,7 @@ Dropzone && (Dropzone.autoDiscover = false);
             // Modal events
             //
             this.$el.on('hidden.bs.modal', _.bind(this.clear, this));
-            this.$el.on('shown.bs.modal', _.bind(this.setRoom, this));
+            this.$el.on('shown.bs.modal', _.bind(this.setTopic, this));
         },
         show: function() {
             this.$el.modal('show');
@@ -80,27 +80,27 @@ Dropzone && (Dropzone.autoDiscover = false);
             swal('Success', 'Files uploaded!', 'success');
         },
         sending: function(file, xhr, formData) {
-            formData.append('room', this.$('select[name="room"]').val());
+            formData.append('topic', this.$('select[name="topic"]').val());
             formData.append('post', this.$('input[name="post"]').is(':checked'));
         },
         submit: function(e) {
             e.preventDefault();
-            if (!this.$('select[name="room"]').val()) {
-                swal('Woops!', 'Please specify a room.', 'warning');
+            if (!this.$('select[name="topic"]').val()) {
+                swal('Woops!', 'Please specify a topic.', 'warning');
                 return;
             }
             this.dropzone.processQueue();
         },
-        setRoom: function() {
-            this.selectize.setValue(this.rooms.current.id);
+        setTopic: function() {
+            this.selectize.setValue(this.topics.current.id);
         },
-        populateRooms: function() {
+        populateTopics: function() {
             this.selectize.clearOptions();
-            this.rooms.each(function(room) {
-                if (room.get('joined')) {
+            this.topics.each(function(topic) {
+                if (topic.get('joined')) {
                     this.selectize.addOption({
-                        id: room.id,
-                        name: room.get('name')
+                        id: topic.id,
+                        name: topic.get('name')
                     });
                 }
             }, this);

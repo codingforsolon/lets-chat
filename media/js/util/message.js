@@ -56,8 +56,8 @@ if (typeof exports !== 'undefined') {
         return text.replace(mentionPattern, '<span class="lcb-message-mention">@$1</span>');
     }
 
-    function roomLinks(text, data) {
-        if (!data.rooms) {
+    function topicLinks(text, data) {
+        if (!data.topics) {
             return text;
         }
 
@@ -65,15 +65,15 @@ if (typeof exports !== 'undefined') {
 
         return text.replace(slugPattern, function(slug) {
             var s = slug.substring(1);
-            var room = data.rooms.find(function(room) {
-                return room.attributes.slug === s;
+            var topic = data.topics.find(function(topic) {
+                return topic.attributes.slug === s;
             });
 
-            if (!room) {
+            if (!topic) {
                 return slug;
             }
 
-            return '<a href="#!/room/' + room.id + '">&#35;' + s + '</a>';
+            return '<a href="#!/topic/' + topic.id + '">&#35;' + s + '</a>';
         });
     }
 
@@ -139,7 +139,7 @@ if (typeof exports !== 'undefined') {
         var pipeline = [
             trim,
             mentions,
-            roomLinks,
+            topicLinks,
             uploads,
             links,
             emotes,

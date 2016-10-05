@@ -5,20 +5,20 @@ var Message = require('node-xmpp-server').Message,
 
 module.exports = EventListener.extend({
 
-    on: 'rooms:update',
+    on: 'topics:update',
 
-    then: function(room) {
-        var connections = this.getConnectionsForRoom(room._id);
+    then: function(topic) {
+        var connections = this.getConnectionsForTopic(topic._id);
 
         connections.forEach(function(connection) {
 
             var message = new Message({
-                to: connection.jid(room.slug),
-                from: connection.jid(room.slug),
+                to: connection.jid(topic.slug),
+                from: connection.jid(topic.slug),
                 type: 'groupchat'
             });
 
-            message.c('subject').t(room.name + ' | ' + room.description);
+            message.c('subject').t(topic.name + ' | ' + topic.description);
 
             this.send(connection, message);
 

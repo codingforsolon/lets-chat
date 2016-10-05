@@ -1,10 +1,10 @@
 //
-// Rooms Controller
+// Topics Controller
 //
 
 'use strict';
 
-var settings = require('./../config').rooms;
+var settings = require('./../config').topics;
 
 module.exports = function() {
     var app = this.app,
@@ -17,9 +17,9 @@ module.exports = function() {
         User.findById(data.userId, function (err, user) {
             if (!err && user) {
                 user = user.toJSON();
-                user.room = data.roomId;
-                if (data.roomHasPassword) {
-                    app.io.to(data.roomId).emit('users:join', user);
+                user.topic = data.topicId;
+                if (data.topicHasPassword) {
+                    app.io.to(data.topicId).emit('users:join', user);
                 } else {
                     app.io.emit('users:join', user);
                 }
@@ -31,9 +31,9 @@ module.exports = function() {
         User.findById(data.userId, function (err, user) {
             if (!err && user) {
                 user = user.toJSON();
-                user.room = data.roomId;
-                if (data.roomHasPassword) {
-                    app.io.to(data.roomId).emit('users:leave', user);
+                user.topic = data.topicId;
+                if (data.topicHasPassword) {
+                    app.io.to(data.topicId).emit('users:leave', user);
                 } else {
                     app.io.emit('users:leave', user);
                 }
@@ -41,12 +41,14 @@ module.exports = function() {
         });
     });
 
-    var getEmitters = function(room) {
-        if (room.private && !room.hasPassword) {
+    var getEmitters = function(topic) {
+        if (topic.private && !topic.hasPassword) {
+            console.log('~~~~~~~~~');
+            console.log(topic);
             var connections = core.presence.connections.query({
                 type: 'socket.io'
             }).filter(function(connection) {
-                return room.isAuthorized(connection.user);
+                return topic.isAuthorized(connection.user);
             });
 
             return connections.map(function(connection) {
@@ -62,24 +64,26 @@ module.exports = function() {
         }];
     };
 
-    core.on('rooms:new', function(room) {
-        var emitters = getEmitters(room);
+    core.on('topics:new', function(topic) {
+        console.log('server core emit');
+        var emitters = getEmitters(topic);
+        console.log(emitters);
         emitters.forEach(function(e) {
-            e.emitter.emit('rooms:new', room.toJSON(e.user));
+            e.emitter.emit('topics:new', topic.toJSON(e.user));
         });
     });
 
-    core.on('rooms:update', function(room) {
-        var emitters = getEmitters(room);
+    core.on('topics:update', function(topic) {
+        var emitters = getEmitters(topic);
         emitters.forEach(function(e) {
-            e.emitter.emit('rooms:update', room.toJSON(e.user));
+            e.emitter.emit('topics:update', topic.toJSON(e.user));
         });
     });
 
-    core.on('rooms:archive', function(room) {
-        var emitters = getEmitters(room);
+    core.on('topics:archive', function(topic) {
+        var emitters = getEmitters(topic);
         emitters.forEach(function(e) {
-            e.emitter.emit('rooms:archive', room.toJSON(e.user));
+            e.emitter.emit('topics:archive', topic.toJSON(e.user));
         });
     });
 
@@ -87,38 +91,38 @@ module.exports = function() {
     //
     // Routes
     //
-    app.route('/rooms')
+    app.route('/topics')
         .all(middlewares.requireLogin)
         .get(function(req) {
-            req.io.route('rooms:list');
+            req.io.route('topics:list');
         })
         .post(function(req) {
-            req.io.route('rooms:create');
+            req.io.route('topics:create');
         });
 
-    app.route('/rooms/:room')
-        .all(middlewares.requireLogin, middlewares.roomRoute)
+    app.route('/topics/:topic')
+        .all(middlewares.requireLogin, middlewares.topicRoute)
         .get(function(req) {
-            req.io.route('rooms:get');
+            req.io.route('topics:get');
         })
         .put(function(req) {
-            req.io.route('rooms:update');
+            req.io.route('topics:update');
         })
         .delete(function(req) {
-            req.io.route('rooms:archive');
+            req.io.route('topics:archive');
         });
 
-    app.route('/rooms/:room/users')
-        .all(middlewares.requireLogin, middlewares.roomRoute)
+    app.route('/topics/:topic/users')
+        .all(middlewares.requireLogin, middlewares.topicRoute)
         .get(function(req) {
-            req.io.route('rooms:users');
+            req.io.route('topics:users');
         });
 
 
     //
     // Sockets
     //
-    app.io.route('rooms', {
+    app.io.route('topics', {
         list: function(req, res) {
             var options = {
                     userId: req.user._id,
@@ -128,14 +132,14 @@ module.exports = function() {
                     take: req.param('take')
                 };
 
-            core.rooms.list(options, function(err, rooms) {
+            core.topics.list(options, function(err, topics) {
                 if (err) {
                     console.error(err);
                     return res.status(400).json(err);
                 }
 
-                var results = rooms.map(function(room) {
-                    return room.toJSON(req.user);
+                var results = topics.map(function(topic) {
+                    return topic.toJSON(req.user);
                 });
 
                 res.json(results);
@@ -144,20 +148,20 @@ module.exports = function() {
         get: function(req, res) {
             var options = {
                 userId: req.user._id,
-                identifier: req.param('room') || req.param('id')
+                identifier: req.param('topic') || req.param('id')
             };
 
-            core.rooms.get(options, function(err, room) {
+            core.topics.get(options, function(err, topic) {
                 if (err) {
                     console.error(err);
                     return res.status(400).json(err);
                 }
 
-                if (!room) {
+                if (!topic) {
                     return res.sendStatus(404);
                 }
 
-                res.json(room.toJSON(req.user));
+                res.json(topic.toJSON(req.user));
             });
         },
         create: function(req, res) {
@@ -175,17 +179,17 @@ module.exports = function() {
                 delete options.password;
             }
 
-            core.rooms.create(options, function(err, room) {
+            core.topics.create(options, function(err, topic) {
                 if (err) {
                     console.error(err);
                     return res.status(400).json(err);
                 }
 
-                res.status(201).json(room.toJSON(req.user));
+                res.status(201).json(topic.toJSON(req.user));
             });
         },
         update: function(req, res) {
-            var roomId = req.param('room') || req.param('id');
+            var topicId = req.param('topic') || req.param('id');
 
             var options = {
                     name: req.param('name'),
@@ -201,29 +205,29 @@ module.exports = function() {
                 delete options.participants;
             }
 
-            core.rooms.update(roomId, options, function(err, room) {
+            core.topics.update(topicId, options, function(err, topic) {
                 if (err) {
                     console.error(err);
                     return res.status(400).json(err);
                 }
 
-                if (!room) {
+                if (!topic) {
                     return res.sendStatus(404);
                 }
 
-                res.json(room.toJSON(req.user));
+                res.json(topic.toJSON(req.user));
             });
         },
         archive: function(req, res) {
-            var roomId = req.param('room') || req.param('id');
+            var topicId = req.param('topic') || req.param('id');
 
-            core.rooms.archive(roomId, function(err, room) {
+            core.topics.archive(topicId, function(err, topic) {
                 if (err) {
                     console.log(err);
                     return res.sendStatus(400);
                 }
 
-                if (!room) {
+                if (!topic) {
                     return res.sendStatus(404);
                 }
 
@@ -239,24 +243,24 @@ module.exports = function() {
             if (typeof req.data === 'string') {
                 options.id = req.data;
             } else {
-                options.id = req.param('roomId');
+                options.id = req.param('topicId');
                 options.password = req.param('password');
             }
 
-            core.rooms.canJoin(options, function(err, room, canJoin) {
+            core.topics.canJoin(options, function(err, topic, canJoin) {
                 if (err) {
                     console.error(err);
                     return res.sendStatus(400);
                 }
 
-                if (!room) {
+                if (!topic) {
                     return res.sendStatus(404);
                 }
 
-                if(!canJoin && room.password) {
+                if(!canJoin && topic.password) {
                     return res.status(403).json({
                         status: 'error',
-                        roomName: room.name,
+                        topicName: topic.name,
                         message: 'password required',
                         errors: 'password required'
                     });
@@ -267,41 +271,41 @@ module.exports = function() {
                 }
 
                 var user = req.user.toJSON();
-                user.room = room._id;
+                user.topic = topic._id;
 
-                core.presence.join(req.socket.conn, room);
-                req.socket.join(room._id);
-                res.json(room.toJSON(req.user));
+                core.presence.join(req.socket.conn, topic);
+                req.socket.join(topic._id);
+                res.json(topic.toJSON(req.user));
             });
         },
         leave: function(req, res) {
-            var roomId = req.data;
+            var topicId = req.data;
             var user = req.user.toJSON();
-            user.room = roomId;
+            user.topic = topicId;
 
-            core.presence.leave(req.socket.conn, roomId);
-            req.socket.leave(roomId);
+            core.presence.leave(req.socket.conn, topicId);
+            req.socket.leave(topicId);
             res.json();
         },
         users: function(req, res) {
-            var roomId = req.param('room');
+            var topicId = req.param('topic');
 
-            core.rooms.get(roomId, function(err, room) {
+            core.topics.get(topicId, function(err, topic) {
                 if (err) {
                     console.error(err);
                     return res.sendStatus(400);
                 }
 
-                if (!room) {
+                if (!topic) {
                     return res.sendStatus(404);
                 }
 
-                var users = core.presence.rooms
-                        .getOrAdd(room)
+                var users = core.presence.topics
+                        .getOrAdd(topic)
                         .getUsers()
                         .map(function(user) {
                             // TODO: Do we need to do this?
-                            user.room = room.id;
+                            user.topic = topic.id;
                             return user;
                         });
 

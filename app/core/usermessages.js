@@ -66,7 +66,7 @@ UserMessageManager.prototype.create = function(options, cb) {
 UserMessageManager.prototype.list = function(options, cb) {
     options = options || {};
 
-    if (!options.room) {
+    if (!options.topic) {
         return cb(null, []);
     }
 

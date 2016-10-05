@@ -9,8 +9,8 @@ module.exports = EventListener.extend({
 
     on: 'messages:new',
 
-    then: function(msg, room, user, data) {
-        var connections = this.getConnectionsForRoom(room._id);
+    then: function(msg, topic, user, data) {
+        var connections = this.getConnectionsForTopic(topic._id);
 
         connections.forEach(function(connection) {
             var text = msg.text;
@@ -18,7 +18,7 @@ module.exports = EventListener.extend({
             var mentions = msg.text.match(mentionPattern);
 
             if (mentions && mentions.indexOf('@' + connection.user.username) > -1) {
-                text = connection.nickname(room.slug) + ': ' + text;
+                text = connection.nickname(topic.slug) + ': ' + text;
             }
 
             var id = msg._id;
@@ -29,8 +29,8 @@ module.exports = EventListener.extend({
             var stanza = new Message({
                 id: id,
                 type: 'groupchat',
-                to: connection.getRoomJid(room.slug),
-                from: connection.getRoomJid(room.slug, user.username)
+                to: connection.getTopicJid(topic.slug),
+                from: connection.getTopicJid(topic.slug, user.username)
             });
 
             stanza.c('active', {

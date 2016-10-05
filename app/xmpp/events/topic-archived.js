@@ -5,17 +5,17 @@ var Presence = require('node-xmpp-server').Presence,
 
 module.exports = EventListener.extend({
 
-    on: 'rooms:archived',
+    on: 'topics:archived',
 
-    then: function(room) {
-        var connections = this.getConnectionsForRoom(room._id);
+    then: function(topic) {
+        var connections = this.getConnectionsForTopic(topic._id);
 
         connections.forEach(function(connection) {
-            // Kick connection from room!
+            // Kick connection from topic!
 
             var presence = new Presence({
-                to: connection.jid(room.slug),
-                from: connection.jid(room.slug),
+                to: connection.jid(topic.slug),
+                from: connection.jid(topic.slug),
                 type: 'unavailable'
             });
 
@@ -30,7 +30,7 @@ module.exports = EventListener.extend({
                 role: 'none'
             });
 
-            x.c('destroy').c('reason').t('Room closed');
+            x.c('destroy').c('reason').t('Topic closed');
 
             this.send(connection, presence);
 

@@ -8,9 +8,9 @@ var mongoose = require('mongoose');
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var MessageSchema = new mongoose.Schema({
-    room: {
+    topic: {
         type: ObjectId,
-        ref: 'Room',
+        ref: 'Topic',
         required: true
     },
     owner: {
@@ -29,7 +29,7 @@ var MessageSchema = new mongoose.Schema({
     }
 });
 
-MessageSchema.index({ text: 'text', room: 1, posted: -1, _id: 1 });
+MessageSchema.index({ text: 'text', topic: 1, posted: -1, _id: 1 });
 
 // EXPOSE ONLY CERTAIN FIELDS
 // This helps ensure that the client gets
@@ -48,10 +48,10 @@ MessageSchema.method('toJSON', function(user) {
         }
     };
 
-    if (this.room._id) {
-        data.room = this.room.toJSON(user);
+    if (this.topic._id) {
+        data.topic = this.topic.toJSON(user);
     } else {
-        data.room = this.room;
+        data.topic = this.topic;
     }
 
     return data;

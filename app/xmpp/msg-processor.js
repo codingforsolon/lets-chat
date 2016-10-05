@@ -51,7 +51,7 @@ MessageProcessor.prototype.preRun = function() {
 
     var confDomain = this.connection.getConfDomain();
     this.toConfRoot = this.to.indexOf(confDomain) === 0;
-    this.toARoom = this.to.indexOf('@' + confDomain) !== -1;
+    this.toATopic = this.to.indexOf('@' + confDomain) !== -1;
 
     this.ns = this.ns || {};
 

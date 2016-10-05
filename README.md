@@ -12,8 +12,8 @@ A self-hosted chat app for small teams built by [Security Compass][seccom].
 
 * BYOS (bring your own server)
 * Persistent messages
-* Multiple rooms
-* Private and password-protected rooms
+* Multiple topics
+* Private and password-protected topics
 * New message alerts / notifications
 * Mentions (hey @you/@all)
 * Image embeds / Giphy search

@@ -8,18 +8,18 @@ var settings = require('./../config'),
 function EventListener(core) {
     this.core = core;
 
-    this.getConnectionsForRoom = this.getConnectionsForRoom.bind(this);
+    this.getConnectionsForTopic = this.getConnectionsForTopic.bind(this);
     this.send = this.send.bind(this);
 }
 
-EventListener.prototype.getConnectionsForRoom = function(roomId) {
-    var room = this.core.presence.rooms.get(roomId);
+EventListener.prototype.getConnectionsForTopic = function(topicId) {
+    var topic = this.core.presence.topics.get(topicId);
 
-    if (!room) {
+    if (!topic) {
         return [];
     }
 
-    return room.connections.query({ type: 'xmpp' });
+    return topic.connections.query({ type: 'xmpp' });
 };
 
 EventListener.prototype.send = function() {

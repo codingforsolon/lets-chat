@@ -25,6 +25,7 @@ module.exports = function() {
     // Routes
     //
     app.get('/', middlewares.requireLogin.redirect, function(req, res) {
+        // res.send('OK It Test.');
         res.render('chat.html', {
             account: req.user,
             settings: settings,
@@ -38,6 +39,7 @@ module.exports = function() {
         var image = _.chain(images).filter(function(file) {
             return /\.(gif|jpg|jpeg|png)$/i.test(file);
         }).sample().value();
+        // res.send('Test Good');
         res.render('login.html', {
             photo: image,
             auth: auth.providers

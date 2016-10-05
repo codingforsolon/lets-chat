@@ -1,36 +1,36 @@
 /*********************
- * Rooms
+ * Topics
  *********************/
 
-.lcb-room,
-.lcb-room-chat,
-.lcb-room-main {
+.lcb-topic,
+.lcb-topic-chat,
+.lcb-topic-main {
     .flex(1);
     .flex-display;
 }
 
-.lcb-room {
+.lcb-topic {
     .flex-direction(column);
     -webkit-transition: -webkit-transform .1s ease;
     -moz-transition: -moz-transform .1s ease;
     -ms-transition: -ms-transform .1s ease;
     transition: transform .1s ease;
     @media (max-width: @screen-sm-max) {
-        &.lcb-room-sidebar-opened {
+        &.lcb-topic-sidebar-opened {
             .translateX(-200px);
         }
     }
 }
 
-.lcb-room-chat {
+.lcb-topic-chat {
     .flex-direction(column);
 }
 
-.lcb-room-main {
+.lcb-topic-main {
     .flex-direction(row);
 }
 
-.lcb-room-header {
+.lcb-topic-header {
     background: #f3f3f3;
     height: 60px;
     min-height: 60px;
@@ -44,18 +44,18 @@
     .flex-direction(row);
 }
 
-.lcb-room-meta {
+.lcb-topic-meta {
     padding-right: 15px;
     .text-overflow;
     .flex(1);
 }
 
-.lcb-room-meta-text {
+.lcb-topic-meta-text {
     min-width: 100%;
     max-width: 0;
 }
 
-.lcb-room-heading {
+.lcb-topic-heading {
     font-size: 24px;
     font-weight: 300;
     color: #555;
@@ -72,11 +72,11 @@
     }
 }
 
-.lcb-room-heading-loud {
+.lcb-topic-heading-loud {
     text-transform: uppercase;
 }
 
-.lcb-room-description {
+.lcb-topic-description {
     font-weight: 300;
     color: #9f9f9f;
     margin: 0;
@@ -86,7 +86,7 @@
     }
 }
 
-.lcb-room-header-actions {
+.lcb-topic-header-actions {
     .btn-action {
         background: #eee;
         color: #777;
@@ -97,7 +97,7 @@
     }
 }
 
-.lcb-room-participants {
+.lcb-topic-participants {
     .text-overflow;
     color: #777;
     @media (max-width: @screen-xs-max) {
@@ -159,19 +159,19 @@
     }
 }
 
-.lcb-room-toggle-sidebar {
-    .lcb-room-sidebar-opened & {
+.lcb-topic-toggle-sidebar {
+    .lcb-topic-sidebar-opened & {
         background: #fefefe;
     }
     .fa {
         .transition(all .2s ease-in);
-        .lcb-room-sidebar-opened & {
+        .lcb-topic-sidebar-opened & {
             .rotateY(180deg);
         }
     }
 }
 
-.lcb-room-sidebar {
+.lcb-topic-sidebar {
     background: #f7f7f7;
     width: 20%;
     min-width: 160px;
@@ -191,13 +191,13 @@
     }
     @media (min-width: @screen-sm-max) {
         display: none;
-        .lcb-room-sidebar-opened & {
+        .lcb-topic-sidebar-opened & {
             .flex-display;
         }
     }
 }
 
-.lcb-room-sidebar-group {
+.lcb-topic-sidebar-group {
     min-height: 36px;
     overflow: hidden;
     border-bottom: 1px #ddd solid;
@@ -206,7 +206,7 @@
     .flex(1 0 0);
 }
 
-.lcb-room-sidebar-header {
+.lcb-topic-sidebar-header {
     min-height: inherit;
     line-height: 36px;
     padding: 0 10px;
@@ -214,7 +214,7 @@
     position: relative;
 }
 
-.lcb-room-sidebar-heading {
+.lcb-topic-sidebar-heading {
     height: 36px;
     line-height: 36px;
     font-size: 13px;
@@ -225,13 +225,13 @@
     }
 }
 
-.lcb-room-sidebar-list,
-.lcb-room-sidebar-item {
+.lcb-topic-sidebar-list,
+.lcb-topic-sidebar-item {
     padding: 0;
     margin: 0;
 }
 
-.lcb-room-sidebar-list {
+.lcb-topic-sidebar-list {
     overflow: hidden;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -239,7 +239,7 @@
     .transform(translate3d(0,0,0));
 }
 
-.lcb-room-sidebar-item {
+.lcb-topic-sidebar-item {
     background: #fff;
     font-size: 12px;
     padding: 5px;
@@ -253,11 +253,11 @@
     }
 }
 
-.lcb-room-sidebar-user {
+.lcb-topic-sidebar-user {
     min-height: 40px;
 }
 
-.lcb-room-sidebar-user-name {
+.lcb-topic-sidebar-user-name {
     font-weight: 400;
     font-size: 14px;
     line-height: 17px;
@@ -266,7 +266,7 @@
     .text-overflow;
 }
 
-.lcb-room-sidebar-user-username {
+.lcb-topic-sidebar-user-username {
     color: #888;
     font-size: 12px;
     line-height: 13px;
@@ -275,20 +275,20 @@
     .text-overflow;
 }
 
-.lcb-room-sidebar-user-avatar {
+.lcb-topic-sidebar-user-avatar {
     .square(30px);
     position: absolute;
     top: 5px;
     left: 5px;
 }
 
-.lcb-room-poke {
+.lcb-topic-poke {
     &:hover {
         cursor: pointer;
     }
 }
 
-.lcb-room-sidebar-files-add {
+.lcb-topic-sidebar-files-add {
     .size(24px);
     font-size: 11px;
     padding: 0;
@@ -301,26 +301,26 @@
     }
 }
 
-.lcb-room-sidebar-file-icon {
+.lcb-topic-sidebar-file-icon {
     position: absolute;
     top: 8px;
     left: 7px;
 }
 
-.lcb-room-sidebar-file-meta {
+.lcb-topic-sidebar-file-meta {
     font-size: 11px;
     color: #777;
     margin-left: 20px;
 }
 
-.lcb-room-sidebar-file-name {
+.lcb-topic-sidebar-file-name {
     font-size: 13px;
     display: block;
     .text-overflow;
 }
 
 @-moz-document url-prefix() {
-    .lcb-room-meta-text {
+    .lcb-topic-meta-text {
         width: 100%;
         display: table;
         table-layout: fixed;

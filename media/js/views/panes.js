@@ -15,39 +15,39 @@
         focus: true,
         initialize: function(options) {
             this.client = options.client;
-            this.template = Handlebars.compile($('#template-room-tab').html());
-            this.rooms = options.rooms;
-            // Room joining
-            this.rooms.on('change:joined', function(room, joined) {
+            this.template = Handlebars.compile($('#template-topic-tab').html());
+            this.topics = options.topics;
+            // Topic joining
+            this.topics.on('change:joined', function(topic, joined) {
                 if (joined) {
-                    this.add(room.toJSON());
+                    this.add(topic.toJSON());
                     return;
                 }
-                this.remove(room.id);
+                this.remove(topic.id);
             }, this);
-            // Room meta updates
-            this.rooms.on('change:name change:description', this.update, this);
-            // Current room switching
-            this.rooms.current.on('change:id', function(current, id) {
+            // Topic meta updates
+            this.topics.on('change:name change:description', this.update, this);
+            // Current topic switching
+            this.topics.current.on('change:id', function(current, id) {
                 this.switch(id);
                 this.clearAlerts(id);
             }, this);
             // Alerts
-            this.rooms.on('messages:new', this.alert, this);
+            this.topics.on('messages:new', this.alert, this);
             // Initial switch since router runs before view is loaded
-            this.switch(this.rooms.current.get('id'));
+            this.switch(this.topics.current.get('id'));
             // Blur/Focus events
             $(window).on('focus blur', _.bind(this.onFocusBlur, this));
             this.render();
         },
-        add: function(room) {
-            this.$el.append(this.template(room));
+        add: function(topic) {
+            this.$el.append(this.template(topic));
         },
         remove: function(id) {
             this.$el.find('.lcb-tab[data-id=' + id + ']').remove();
         },
-        update: function(room) {
-            this.$el.find('.lcb-tab[data-id=' + room.id + '] .lcb-tab-title').text(room.get('name'));
+        update: function(topic) {
+            this.$el.find('.lcb-tab[data-id=' + topic.id + '] .lcb-tab-title').text(topic.get('name'));
         },
         switch: function(id) {
             if (!id) {
@@ -59,14 +59,14 @@
         leave: function(e) {
             e.preventDefault();
             var id = $(e.currentTarget).closest('[data-id]').data('id');
-            this.client.events.trigger('rooms:leave', id);
+            this.client.events.trigger('topics:leave', id);
         },
         alert: function(message) {
-            var $tab = this.$('.lcb-tab[data-id=' + message.room.id + ']'),
+            var $tab = this.$('.lcb-tab[data-id=' + message.topic.id + ']'),
                 $total = $tab.find('.lcb-tab-alerts-total'),
                 $mentions = $tab.find('.lcb-tab-alerts-mentions');
             if (message.historical || $tab.length === 0
-                    || ((this.rooms.current.get('id') === message.room.id) && this.focus)) {
+                    || ((this.topics.current.get('id') === message.topic.id) && this.focus)) {
                 // Nothing to do here!
                 return;
             }
@@ -95,33 +95,33 @@
             clearTimeout(this.clearTimer);
             if (this.focus) {
                 this.clearTimer = setTimeout(function() {
-                    that.clearAlerts(that.rooms.current.get('id'));
+                    that.clearAlerts(that.topics.current.get('id'));
                 }, 1000);
                 return;
             }
-            that.clearAlerts(that.rooms.current.get('id'));
+            that.clearAlerts(that.topics.current.get('id'));
         }
     });
 
     window.LCB.PanesView = Backbone.View.extend({
         initialize: function(options) {
             this.client = options.client;
-            this.template = Handlebars.compile($('#template-room').html());
-            this.rooms = options.rooms;
+            this.template = Handlebars.compile($('#template-topic').html());
+            this.topics = options.topics;
             this.views = {};
-            this.rooms.on('change:joined', function(room, joined) {
+            this.topics.on('change:joined', function(topic, joined) {
                 if (joined) {
-                    this.add(room);
+                    this.add(topic);
                     return;
                 }
-                this.remove(room.id);
+                this.remove(topic.id);
             }, this);
-            // Switch room
-            this.rooms.current.on('change:id', function(current, id) {
+            // Switch topic
+            this.topics.current.on('change:id', function(current, id) {
                 this.switch(id);
             }, this);
             // Initial switch since router runs before view is loaded
-            this.switch(this.rooms.current.get('id'));
+            this.switch(this.topics.current.get('id'));
         },
         switch: function(id) {
             if (!id) {
@@ -132,17 +132,17 @@
             $(window).width() > 767 && $pane.find('[autofocus]').focus();
             this.views[id] && this.views[id].scrollMessages(true);
         },
-        add: function(room) {
-            if (this.views[room.id]) {
-                // Nothing to do, this room is already here
+        add: function(topic) {
+            if (this.views[topic.id]) {
+                // Nothing to do, this topic is already here
                 return;
             }
-            this.views[room.id] = new window.LCB.RoomView({
+            this.views[topic.id] = new window.LCB.TopicView({
                 client: this.client,
                 template: this.template,
-                model: room
+                model: topic
             });
-            this.$el.append(this.views[room.id].$el);
+            this.$el.append(this.views[topic.id].$el);
         },
         remove: function(id) {
             if (!this.views[id]) {

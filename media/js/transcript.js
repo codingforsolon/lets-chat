@@ -5,9 +5,9 @@
 $(function() {
     var transcript = new window.LCB.TranscriptView({
         el: '.lcb-transcript',
-        room: {
-            id: $('[name="room-id"]').val(),
-            name: $('[name="room-name"]').val()
+        topic: {
+            id: $('[name="topic-id"]').val(),
+            name: $('[name="topic-name"]').val()
         }
     });
 });

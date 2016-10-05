@@ -8,7 +8,7 @@ var EventEmitter = require('events').EventEmitter,
     FileManager = require('./files'),
     MessageManager = require('./messages'),
     PresenceManager = require('./presence'),
-    RoomManager = require('./rooms'),
+    TopicManager = require('./topics'),
     UserManager = require('./users'),
     UserMessageManager = require('./usermessages');
 
@@ -31,7 +31,7 @@ function Core() {
         core: this
     });
 
-    this.rooms = new RoomManager({
+    this.topics = new TopicManager({
         core: this
     });
 
@@ -73,8 +73,8 @@ Core.prototype.onAccountUpdated = function(data) {
     }
 
     if (data.usernameChanged) {
-        // Emit to all rooms, that this user has changed their username
-        this.presence.rooms.usernameChanged(new_data);
+        // Emit to all topics, that this user has changed their username
+        this.presence.topics.usernameChanged(new_data);
     }
 };
 

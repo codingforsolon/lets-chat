@@ -20,7 +20,7 @@ var FilesCollection = Backbone.Collection.extend({
     model: FileModel
 });
 
-var RoomModel = Backbone.Model.extend({
+var TopicModel = Backbone.Model.extend({
     initialize: function() {
         this.messages = new MessagesCollection();
         this.users = new UsersCollection();
@@ -39,8 +39,8 @@ var RoomModel = Backbone.Model.extend({
     loaded: false
 });
 
-var RoomsCollection = Backbone.Collection.extend({
-    model: RoomModel,
+var TopicsCollection = Backbone.Collection.extend({
+    model: TopicModel,
     initialize: function() {
         this.current = new Backbone.Model();
         this.last = new Backbone.Model();

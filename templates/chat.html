@@ -7,7 +7,7 @@
 <% endblock %>
 
 <% block templates %>
-    <% include 'includes/js/room.html' %>
+    <% include 'includes/js/topic.html' %>
     <% include 'includes/js/user.html' %>
     <% include 'includes/js/file.html' %>
     <% include 'includes/js/message.html' %>
@@ -90,32 +90,32 @@
             </div>
         </section>
         <section class="lcb-panes">
-            <div class="lcb-rooms-browser lcb-pane hide" data-id="list">
-                <header class="lcb-room-header">
-                    <div class="lcb-room-meta">
-                        <h2 class="lcb-room-heading lcb-room-heading-loud"><$ __('All Rooms') $></h2>
+            <div class="lcb-topics-browser lcb-pane hide" data-id="list">
+                <header class="lcb-topic-header">
+                    <div class="lcb-topic-meta">
+                        <h2 class="lcb-topic-heading lcb-topic-heading-loud"><$ __('All Topics') $></h2>
                     </div>
-                    <div class="lcb-rooms-browser-filter">
-                        <label class="lcb-rooms-browser-filter-label" for="lcb-rooms-browser-filter-input">
+                    <div class="lcb-topics-browser-filter">
+                        <label class="lcb-topics-browser-filter-label" for="lcb-topics-browser-filter-input">
                             <i class="fa fa-search" aria-label="<$ __('Search') $>"></i>
                         </label>
-                        <input id="lcb-rooms-browser-filter-input" class="lcb-rooms-browser-filter-input" type="search" autofocus placeholder="<$ __('Find a room...') $>" />
+                        <input id="lcb-topics-browser-filter-input" class="lcb-topics-browser-filter-input" type="search" autofocus placeholder="<$ __('Find a topic...') $>" />
                     </div>
-                    <div class="lcb-room-header-actions">
-                        <a class="btn btn-success lcb-rooms-browser-new" data-toggle="modal" data-target="#lcb-add-room" href="#!/rooms/add">
-                            <i class="fa fa-plus" aria-label="<$ __('Add Room') $>"></i>
+                    <div class="lcb-topic-header-actions">
+                        <a class="btn btn-success lcb-topics-browser-new" data-toggle="modal" data-target="#lcb-add-topic" href="#!/topics/add">
+                            <i class="fa fa-plus" aria-label="<$ __('Add Topic') $>"></i>
                         </a>
                     </div>
                 </header>
-                <header class="lcb-rooms-browser-header hide">
-                    <h2 class="lcb-rooms-browser-heading">
-                        <$ __('All Rooms') $>
+                <header class="lcb-topics-browser-header hide">
+                    <h2 class="lcb-topics-browser-heading">
+                        <$ __('All Topics') $>
                     </h2>
 
-                    
+
                 </header>
-                <ul class="lcb-rooms-list"></ul>
-                <% include 'includes/modals/add-room.html' %>
+                <ul class="lcb-topics-list"></ul>
+                <% include 'includes/modals/add-topic.html' %>
                 <% include 'includes/modals/password.html' %>
             </div>
         </section>

@@ -1,7 +1,7 @@
 //= require util/message.js
 //= require models.js
 //= require views/browser.js
-//= require views/room.js
+//= require views/topic.js
 //= require views/status.js
 //= require views/window.js
 //= require views/panes.js

@@ -8,6 +8,7 @@ var passport = require('passport');
 
 function getMiddleware(fail) {
     return function(req, res, next) {
+        console.log('in require login');
         if (req.user) {
             next();
             return;

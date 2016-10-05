@@ -4,8 +4,8 @@ var mongoose = require('mongoose'),
     _ = require('lodash'),
     helpers = require('./helpers');
 
-var getParticipants = function(room, options, cb) {
-    if (!room.private || !options.participants) {
+var getParticipants = function(topic, options, cb) {
+    if (!topic.private || !options.participants) {
         return cb(null, []);
     }
 
@@ -34,120 +34,120 @@ var getParticipants = function(room, options, cb) {
     User.find({username: { $in: participants } }, cb);
 };
 
-function RoomManager(options) {
+function TopicManager(options) {
     this.core = options.core;
 }
 
-RoomManager.prototype.canJoin = function(options, cb) {
+TopicManager.prototype.canJoin = function(options, cb) {
     var method = options.id ? 'get' : 'slug',
-        roomId = options.id ? options.id : options.slug;
+        topicId = options.id ? options.id : options.slug;
 
-    this[method](roomId, function(err, room) {
+    this[method](topicId, function(err, topic) {
         if (err) {
             return cb(err);
         }
 
-        if (!room) {
+        if (!topic) {
             return cb();
         }
 
-        room.canJoin(options, function(err, canJoin) {
-            cb(err, room, canJoin);
+        topic.canJoin(options, function(err, canJoin) {
+            cb(err, topic, canJoin);
         });
     });
 };
 
-RoomManager.prototype.create = function(options, cb) {
-    var Room = mongoose.model('Room');
-    Room.create(options, function(err, room) {
+TopicManager.prototype.create = function(options, cb) {
+    var Topic = mongoose.model('Topic');
+    Topic.create(options, function(err, topic) {
         if (err) {
             return cb(err);
         }
 
         if (cb) {
-            room = room;
-            cb(null, room);
-            this.core.emit('rooms:new', room);
+            topic = topic;
+            cb(null, topic);
+            this.core.emit('topics:new', topic);
         }
     }.bind(this));
 };
 
-RoomManager.prototype.update = function(roomId, options, cb) {
-    var Room = mongoose.model('Room');
+TopicManager.prototype.update = function(topicId, options, cb) {
+    var Topic = mongoose.model('Topic');
 
-    Room.findById(roomId, function(err, room) {
+    Topic.findById(topicId, function(err, topic) {
         if (err) {
             // Oh noes, a bad thing happened!
             console.error(err);
             return cb(err);
         }
 
-        if (!room) {
-            return cb('Room does not exist.');
+        if (!topic) {
+            return cb('Topic does not exist.');
         }
 
-        if(room.private && !room.owner.equals(options.user.id)) {
-            return cb('Only owner can change private room.');
+        if(topic.private && !topic.owner.equals(options.user.id)) {
+            return cb('Only owner can change private topic.');
         }
 
-        getParticipants(room, options, function(err, participants) {
+        getParticipants(topic, options, function(err, participants) {
             if (err) {
                 // Oh noes, a bad thing happened!
                 console.error(err);
                 return cb(err);
             }
 
-            room.name = options.name;
+            topic.name = options.name;
             // DO NOT UPDATE SLUG
-            // room.slug = options.slug;
-            room.description = options.description;
+            // topic.slug = options.slug;
+            topic.description = options.description;
 
-            if (room.private) {
-                room.password = options.password;
-                room.participants = participants;
+            if (topic.private) {
+                topic.password = options.password;
+                topic.participants = participants;
             }
 
-            room.save(function(err, room) {
+            topic.save(function(err, topic) {
                 if (err) {
                     console.error(err);
                     return cb(err);
                 }
-                room = room;
-                cb(null, room);
-                this.core.emit('rooms:update', room);
+                topic = topic;
+                cb(null, topic);
+                this.core.emit('topics:update', topic);
             }.bind(this));
         }.bind(this));
     }.bind(this));
 };
 
-RoomManager.prototype.archive = function(roomId, cb) {
-    var Room = mongoose.model('Room');
+TopicManager.prototype.archive = function(topicId, cb) {
+    var Topic = mongoose.model('Topic');
 
-    Room.findById(roomId, function(err, room) {
+    Topic.findById(topicId, function(err, topic) {
         if (err) {
             // Oh noes, a bad thing happened!
             console.error(err);
             return cb(err);
         }
 
-        if (!room) {
-            return cb('Room does not exist.');
+        if (!topic) {
+            return cb('Topic does not exist.');
         }
 
-        room.archived = true;
-        room.save(function(err, room) {
+        topic.archived = true;
+        topic.save(function(err, topic) {
             if (err) {
                 console.error(err);
                 return cb(err);
             }
-            cb(null, room);
-            this.core.emit('rooms:archive', room);
+            cb(null, topic);
+            this.core.emit('topics:archive', topic);
 
         }.bind(this));
     }.bind(this));
 };
 
-RoomManager.prototype.list = function(options, cb) {
+TopicManager.prototype.list = function(options, cb) {
     options = options || {};
 
     options = helpers.sanitizeQuery(options, {
@@ -157,9 +157,9 @@ RoomManager.prototype.list = function(options, cb) {
         maxTake: 5000
     });
 
-    var Room = mongoose.model('Room');
+    var Topic = mongoose.model('Topic');
 
-    var find = Room.find({
+    var find = Topic.find({
         archived: { $ne: true },
         $or: [
             {private: {$exists: false}},
@@ -190,54 +190,54 @@ RoomManager.prototype.list = function(options, cb) {
 
     find.populate('participants');
 
-    find.exec(function(err, rooms) {
+    find.exec(function(err, topics) {
         if (err) {
             return cb(err);
         }
 
-        _.each(rooms, function(room) {
-            this.sanitizeRoom(options, room);
+        _.each(topics, function(topic) {
+            this.sanitizeTopic(options, topic);
         }.bind(this));
 
         if (options.users && !options.sort) {
-            rooms = _.sortBy(rooms, ['userCount', 'lastActive'])
+            topics = _.sortBy(topics, ['userCount', 'lastActive'])
                      .reverse();
         }
 
-        cb(null, rooms);
+        cb(null, topics);
 
     }.bind(this));
 };
 
-RoomManager.prototype.sanitizeRoom = function(options, room) {
-    var authorized = options.userId && room.isAuthorized(options.userId);
+TopicManager.prototype.sanitizeTopic = function(options, topic) {
+    var authorized = options.userId && topic.isAuthorized(options.userId);
 
     if (options.users) {
         if (authorized) {
-            room.users = this.core.presence
-                        .getUsersForRoom(room.id.toString());
+            topic.users = this.core.presence
+                        .getUsersForTopic(topic.id.toString());
         } else {
-            room.users = [];
+            topic.users = [];
         }
     }
 };
 
-RoomManager.prototype.findOne = function(options, cb) {
-    var Room = mongoose.model('Room');
-    Room.findOne(options.criteria)
-        .populate('participants').exec(function(err, room) {
+TopicManager.prototype.findOne = function(options, cb) {
+    var Topic = mongoose.model('Topic');
+    Topic.findOne(options.criteria)
+        .populate('participants').exec(function(err, topic) {
 
         if (err) {
             return cb(err);
         }
 
-        this.sanitizeRoom(options, room);
-        cb(err, room);
+        this.sanitizeTopic(options, topic);
+        cb(err, topic);
 
     }.bind(this));
 };
 
-RoomManager.prototype.get = function(options, cb) {
+TopicManager.prototype.get = function(options, cb) {
     var identifier;
 
     if (typeof options === 'string') {
@@ -256,7 +256,7 @@ RoomManager.prototype.get = function(options, cb) {
     this.findOne(options, cb);
 };
 
-RoomManager.prototype.slug = function(options, cb) {
+TopicManager.prototype.slug = function(options, cb) {
     var identifier;
 
     if (typeof options === 'string') {
@@ -275,4 +275,4 @@ RoomManager.prototype.slug = function(options, cb) {
     this.findOne(options, cb);
 };
 
-module.exports = RoomManager;
+module.exports = TopicManager;

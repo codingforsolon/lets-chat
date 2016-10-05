@@ -13,21 +13,21 @@ module.exports = function() {
     // Routes
     //
     app.get('/transcript', middlewares.requireLogin, function(req, res) {
-        var roomId = req.param('room');
-        core.rooms.get(roomId, function(err, room) {
+        var topicId = req.param('topic');
+        core.topics.get(topicId, function(err, topic) {
             if (err) {
                 console.error(err);
                 return res.sendStatus(404);
             }
 
-            if (!room) {
+            if (!topic) {
                 return res.sendStatus(404);
             }
 
             res.render('transcript.html', {
-                room: {
-                    id: roomId,
-                    name: room.name
+                topic: {
+                    id: topicId,
+                    name: topic.name
                 }
             });
         });

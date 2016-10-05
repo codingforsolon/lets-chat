@@ -1,21 +1,21 @@
-<script type="text/x-handlebars-template" id="template-room-browser-item">
-    <li class="lcb-rooms-list-item" data-id="{{id}}">
-        <div class="lcb-rooms-list-item-top">
+<script type="text/x-handlebars-template" id="template-topic-browser-item">
+    <li class="lcb-topics-list-item" data-id="{{id}}">
+        <div class="lcb-topics-list-item-top">
             {{#if hasPassword}}
-                <span class="lcb-rooms-list-item-password fa fa-lock"></span>
-                <a class="lcb-rooms-list-item-name" href="#!/room/{{id}}">{{name}}</a>
+                <span class="lcb-topics-list-item-password fa fa-lock"></span>
+                <a class="lcb-topics-list-item-name" href="#!/topic/{{id}}">{{name}}</a>
             {{else}}
-                <a class="lcb-rooms-list-item-name" href="#!/room/{{id}}">{{name}}</a>
+                <a class="lcb-topics-list-item-name" href="#!/topic/{{id}}">{{name}}</a>
             {{/if}}
-            <span class="lcb-rooms-list-item-slug">#{{slug}}</span>
+            <span class="lcb-topics-list-item-slug">#{{slug}}</span>
         </div>
-        <div class="lcb-rooms-list-item-description">{{description}}</div>
-        <ul class="lcb-rooms-list-users"></ul>
-        <div class="lcb-rooms-list-item-switch onoffswitch">
-            <input type="checkbox" class="switch lcb-rooms-switch" id="room-switch-{{id}}" data-id="{{id}}" />
-            <label class="switch lcb-rooms-switch-label" for="room-switch-{{id}}"></label>
+        <div class="lcb-topics-list-item-description">{{description}}</div>
+        <ul class="lcb-topics-list-users"></ul>
+        <div class="lcb-topics-list-item-switch onoffswitch">
+            <input type="checkbox" class="switch lcb-topics-switch" id="topic-switch-{{id}}" data-id="{{id}}" />
+            <label class="switch lcb-topics-switch-label" for="topic-switch-{{id}}"></label>
         </div>
-        <div class="lcb-rooms-list-item-last-active">
+        <div class="lcb-topics-list-item-last-active">
             <i class="fa fa-clock-o"></i> <span class="value">{{lastActive}}</span>
         </div>
     </li>

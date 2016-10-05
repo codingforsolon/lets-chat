@@ -13,7 +13,7 @@
             var that = this;
 
             this.options = options;
-            this.room = options.room;
+            this.topic = options.topic;
 
             this.$messages = this.$('.lcb-transcript-messages');
             this.messageTemplate =
@@ -77,7 +77,7 @@
             var that = this;
             this.clearMessages();
             $.get('./messages', {
-                room: this.room.id,
+                topic: this.topic.id,
                 from: moment(this.startDate).utc().toISOString(),
                 to: moment(this.endDate).utc().toISOString(),
                 query: this.query,

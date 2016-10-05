@@ -32,7 +32,7 @@ FileManager.prototype.create = function(options, cb) {
     }
 
     var File = mongoose.model('File'),
-        Room = mongoose.model('Room'),
+        Topic = mongoose.model('Topic'),
         User = mongoose.model('User');
 
     if (settings.restrictTypes &&
@@ -43,19 +43,19 @@ FileManager.prototype.create = function(options, cb) {
                       ' is not allowed');
     }
 
-    Room.findById(options.room, function(err, room) {
+    Topic.findById(options.topic, function(err, topic) {
 
         if (err) {
             console.error(err);
             return cb(err);
         }
-        if (!room) {
-            return cb('Room does not exist.');
+        if (!topic) {
+            return cb('Topic does not exist.');
         }
-        if (room.archived) {
-            return cb('Room is archived.');
+        if (topic.archived) {
+            return cb('Topic is archived.');
         }
-        if (!room.isAuthorized(options.owner)) {
+        if (!topic.isAuthorized(options.owner)) {
             return cb('Not authorized.');
         }
 
@@ -64,7 +64,7 @@ FileManager.prototype.create = function(options, cb) {
             name: options.file.originalname,
             type: options.file.mimetype,
             size: options.file.size,
-            room: options.room
+            topic: options.topic
         }).save(function(err, savedFile) {
             if (err) {
                 return cb(err);
@@ -83,13 +83,13 @@ FileManager.prototype.create = function(options, cb) {
                         return cb(err);
                     }
 
-                    cb(null, savedFile, room, user);
+                    cb(null, savedFile, topic, user);
 
-                    this.core.emit('files:new', savedFile, room, user);
+                    this.core.emit('files:new', savedFile, topic, user);
 
                     if (options.post) {
                         this.core.messages.create({
-                            room: room,
+                            topic: topic,
                             owner: user.id,
                             text: 'upload://' + savedFile.url
                         });
@@ -101,7 +101,7 @@ FileManager.prototype.create = function(options, cb) {
 };
 
 FileManager.prototype.list = function(options, cb) {
-    var Room = mongoose.model('Room');
+    var Topic = mongoose.model('Topic');
 
     if (!enabled) {
         return cb(null, []);
@@ -109,7 +109,7 @@ FileManager.prototype.list = function(options, cb) {
 
     options = options || {};
 
-    if (!options.room) {
+    if (!options.topic) {
         return cb(null, []);
     }
 
@@ -124,7 +124,7 @@ FileManager.prototype.list = function(options, cb) {
     var File = mongoose.model('File');
 
     var find = File.find({
-        room: options.room
+        topic: options.topic
     });
 
     if (options.from) {
@@ -153,7 +153,7 @@ FileManager.prototype.list = function(options, cb) {
         find.sort({ 'uploaded': 1 });
     }
 
-    Room.findById(options.room, function(err, room) {
+    Topic.findById(options.topic, function(err, topic) {
         if (err) {
             console.error(err);
             return cb(err);
@@ -164,7 +164,7 @@ FileManager.prototype.list = function(options, cb) {
             password: options.password
         };
 
-        room.canJoin(opts, function(err, canJoin) {
+        topic.canJoin(opts, function(err, canJoin) {
             if (err) {
                 console.error(err);
                 return cb(err);

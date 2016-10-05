@@ -4,7 +4,7 @@
 
 'use strict';
 
-process.title = 'letschat';
+process.title = '众聊';
 
 require('colors');
 
@@ -265,6 +265,7 @@ mongoose.connect(settings.database.uri, function(err) {
         throw err;
     }
 
+    console.log('start connect mongo');
     checkForMongoTextSearch();
     startApp();
 });

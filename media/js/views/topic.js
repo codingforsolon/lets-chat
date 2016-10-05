@@ -9,18 +9,18 @@
 
     window.LCB = window.LCB || {};
 
-    window.LCB.RoomView = Backbone.View.extend({
+    window.LCB.TopicView = Backbone.View.extend({
         events: {
             'scroll .lcb-messages': 'updateScrollLock',
             'keypress .lcb-entry-input': 'sendMessage',
             'click .lcb-entry-button': 'sendMessage',
-            'DOMCharacterDataModified .lcb-room-heading, .lcb-room-description': 'sendMeta',
-            'click .lcb-room-toggle-sidebar': 'toggleSidebar',
-            'click .show-edit-room': 'showEditRoom',
-            'click .hide-edit-room': 'hideEditRoom',
-            'click .submit-edit-room': 'submitEditRoom',
-            'click .archive-room': 'archiveRoom',
-            'click .lcb-room-poke': 'poke',
+            'DOMCharacterDataModified .lcb-topic-heading, .lcb-topic-description': 'sendMeta',
+            'click .lcb-topic-toggle-sidebar': 'toggleSidebar',
+            'click .show-edit-topic': 'showEditTopic',
+            'click .hide-edit-topic': 'hideEditTopic',
+            'click .submit-edit-topic': 'submitEditTopic',
+            'click .archive-topic': 'archiveTopic',
+            'click .lcb-topic-poke': 'poke',
             'click .lcb-upload-trigger': 'upload'
         },
         initialize: function(options) {
@@ -44,12 +44,12 @@
             //
             // Subviews
             //
-            this.usersList = new window.LCB.RoomUsersView({
-                el: this.$('.lcb-room-sidebar-users'),
+            this.usersList = new window.LCB.TopicUsersView({
+                el: this.$('.lcb-topic-sidebar-users'),
                 collection: this.model.users
             });
-            this.filesList = new window.LCB.RoomFilesView({
-                el: this.$('.lcb-room-sidebar-files'),
+            this.filesList = new window.LCB.TopicFilesView({
+                el: this.$('.lcb-topic-sidebar-files'),
                 collection: this.model.files
             });
         },
@@ -63,7 +63,7 @@
             this.$messages.on('scroll',  _.bind(this.updateScrollLock, this));
             this.atwhoMentions();
             this.atwhoAllMentions();
-            this.atwhoRooms();
+            this.atwhoTopics();
             this.atwhoEmotes();
             this.selectizeParticipants();
         },
@@ -169,7 +169,7 @@
 
             var opts = _.extend(options, { at: '@'});
             this.$('.lcb-entry-participants').atwho(opts);
-            this.$('.lcb-room-participants').atwho(opts);
+            this.$('.lcb-topic-participants').atwho(opts);
         },
         selectizeParticipants: function () {
             var that = this;
@@ -201,18 +201,18 @@
                 }
             });
         },
-        atwhoRooms: function() {
-            var rooms = this.client.rooms;
+        atwhoTopics: function() {
+            var topics = this.client.topics;
 
             function filter(query, data, searchKey) {
                 var q = query.toLowerCase();
-                var results = rooms.filter(function(room) {
-                    var val = room.attributes.slug.toLowerCase();
+                var results = topics.filter(function(topic) {
+                    var val = topic.attributes.slug.toLowerCase();
                     return val.indexOf(q) > -1;
                 });
 
-                return results.map(function(room) {
-                    return room.attributes;
+                return results.map(function(topic) {
+                    return topic.attributes;
                 });
             }
 
@@ -243,30 +243,30 @@
             swal('Archived!', '"' + this.model.get('name') + '" has been archived.', 'warning');
         },
         updateMeta: function() {
-            this.$('.lcb-room-heading .name').text(this.model.get('name'));
-            this.$('.lcb-room-heading .slug').text('#' + this.model.get('slug'));
-            this.$('.lcb-room-description').text(this.model.get('description'));
-            this.$('.lcb-room-participants').text(this.model.get('participants'));
+            this.$('.lcb-topic-heading .name').text(this.model.get('name'));
+            this.$('.lcb-topic-heading .slug').text('#' + this.model.get('slug'));
+            this.$('.lcb-topic-description').text(this.model.get('description'));
+            this.$('.lcb-topic-participants').text(this.model.get('participants'));
         },
         sendMeta: function(e) {
             this.model.set({
-                name: this.$('.lcb-room-heading').text(),
-                description: this.$('.lcb-room-description').text(),
-                participants: this.$('.lcb-room-participants').text()
+                name: this.$('.lcb-topic-heading').text(),
+                description: this.$('.lcb-topic-description').text(),
+                participants: this.$('.lcb-topic-participants').text()
             });
-            this.client.events.trigger('rooms:update', {
+            this.client.events.trigger('topics:update', {
                 id: this.model.id,
                 name: this.model.get('name'),
                 description: this.model.get('description'),
                 participants: this.model.get('participants')
             });
         },
-        showEditRoom: function(e) {
+        showEditTopic: function(e) {
             if (e) {
                 e.preventDefault();
             }
 
-            var $modal = this.$('.lcb-room-edit'),
+            var $modal = this.$('.lcb-topic-edit'),
                 $name = $modal.find('input[name="name"]'),
                 $description = $modal.find('textarea[name="description"]'),
                 $password = $modal.find('input[name="password"]'),
@@ -279,24 +279,24 @@
 
             $modal.modal();
         },
-        hideEditRoom: function(e) {
+        hideEditTopic: function(e) {
             if (e) {
                 e.preventDefault();
             }
-            this.$('.lcb-room-edit').modal('hide');
+            this.$('.lcb-topic-edit').modal('hide');
         },
-        submitEditRoom: function(e) {
+        submitEditTopic: function(e) {
             if (e) {
                 e.preventDefault();
             }
 
-            var $modal = this.$('.lcb-room-edit'),
+            var $modal = this.$('.lcb-topic-edit'),
                 $name = $modal.find('input[name="name"]'),
                 $description = $modal.find('textarea[name="description"]'),
                 $password = $modal.find('input[name="password"]'),
                 $confirmPassword = $modal.find('input[name="confirmPassword"]'),
                 $participants =
-                    this.$('.edit-room textarea[name="participants"]');
+                    this.$('.edit-topic textarea[name="participants"]');
 
             $name.parent().removeClass('has-error');
             $confirmPassword.parent().removeClass('has-error');
@@ -311,7 +311,7 @@
                 return;
             }
 
-            this.client.events.trigger('rooms:update', {
+            this.client.events.trigger('topics:update', {
                 id: this.model.id,
                 name: $name.val(),
                 description: $description.val(),
@@ -321,7 +321,7 @@
 
             $modal.modal('hide');
         },
-        archiveRoom: function(e) {
+        archiveTopic: function(e) {
             var that = this;
             swal({
                 title: 'Do you really want to archive "' +
@@ -335,9 +335,9 @@
                 closeOnConfirm: true,
             }, function(isConfirm) {
                 if (isConfirm) {
-                    that.$('.lcb-room-edit').modal('hide');
-                    that.client.events.trigger('rooms:archive', {
-                        room: that.model.id
+                    that.$('.lcb-topic-edit').modal('hide');
+                    that.client.events.trigger('topics:archive', {
+                        topic: that.model.id
                     });
                 }
             });
@@ -350,7 +350,7 @@
             var $textarea = this.$('.lcb-entry-input');
             if (!$textarea.val()) return;
             this.client.events.trigger('messages:send', {
-                room: this.model.id,
+                topic: this.model.id,
                 text: $textarea.val()
             });
             $textarea.val('');
@@ -399,7 +399,7 @@
                     var data = {
                         emotes: emotes,
                         replacements: replacements,
-                        rooms: client.rooms
+                        topics: client.topics
                     };
 
                     var msg = window.utils.message.format(text, data);
@@ -421,12 +421,12 @@
         toggleSidebar: function(e) {
             e && e.preventDefault && e.preventDefault();
             // Target siblings too!
-            this.$el.siblings('.lcb-room').andSelf().toggleClass('lcb-room-sidebar-opened');
+            this.$el.siblings('.lcb-topic').andSelf().toggleClass('lcb-topic-sidebar-opened');
             // Save to localstorage
             if ($(window).width() > 767) {
                 this.scrollMessages();
                 store.set('sidebar',
-                          this.$el.hasClass('lcb-room-sidebar-opened'));
+                          this.$el.hasClass('lcb-topic-sidebar-opened'));
             }
         },
         destroy: function() {
@@ -459,7 +459,7 @@
         }
     });
 
-    window.LCB.RoomSidebarListView = Backbone.View.extend({
+    window.LCB.TopicSidebarListView = Backbone.View.extend({
         initialize: function(options) {
             this.template = Handlebars.compile($(this.templateSelector).html());
             this.collection.on('add remove', function() {
@@ -483,25 +483,25 @@
             this.count();
         },
         add: function(model) {
-            this.$('.lcb-room-sidebar-list').prepend(this.template(model));
+            this.$('.lcb-topic-sidebar-list').prepend(this.template(model));
         },
         remove: function(id) {
-            this.$('.lcb-room-sidebar-item[data-id=' + id + ']').remove();
+            this.$('.lcb-topic-sidebar-item[data-id=' + id + ']').remove();
         },
         count: function(models) {
-            this.$('.lcb-room-sidebar-items-count').text(this.collection.length);
+            this.$('.lcb-topic-sidebar-items-count').text(this.collection.length);
         },
         update: function(model){
-            this.$('.lcb-room-sidebar-item[data-id=' + model.id + ']')
+            this.$('.lcb-topic-sidebar-item[data-id=' + model.id + ']')
                 .replaceWith(this.template(model));
         }
     });
 
-    window.LCB.RoomUsersView = window.LCB.RoomSidebarListView.extend({
+    window.LCB.TopicUsersView = window.LCB.TopicSidebarListView.extend({
         templateSelector: '#template-user'
     });
 
-    window.LCB.RoomFilesView = window.LCB.RoomSidebarListView.extend({
+    window.LCB.TopicFilesView = window.LCB.TopicSidebarListView.extend({
         templateSelector: '#template-file'
     });
 

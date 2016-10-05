@@ -10,7 +10,7 @@ module.exports = MessageProcessor.extend({
     },
 
     then: function(cb) {
-        this.core.rooms.list(null, function(err, rooms) {
+        this.core.topics.list(null, function(err, topics) {
             if (err) {
                 return cb(err);
             }
@@ -21,10 +21,10 @@ module.exports = MessageProcessor.extend({
                 xmlns: 'http://jabber.org/protocol/disco#items'
             });
 
-            rooms.forEach(function(room) {
+            topics.forEach(function(topic) {
                 query.c('item', {
-                    jid: this.connection.getRoomJid(room.slug),
-                    name: room.name
+                    jid: this.connection.getTopicJid(topic.slug),
+                    name: topic.name
                 });
             }, this);
 

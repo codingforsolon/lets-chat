@@ -10,25 +10,25 @@ function MessageManager(options) {
 
 MessageManager.prototype.create = function(options, cb) {
     var Message = mongoose.model('Message'),
-        Room = mongoose.model('Room'),
+        Topic = mongoose.model('Topic'),
         User = mongoose.model('User');
 
     if (typeof cb !== 'function') {
         cb = function() {};
     }
 
-    Room.findById(options.room, function(err, room) {
+    Topic.findById(options.topic, function(err, topic) {
         if (err) {
             console.error(err);
             return cb(err);
         }
-        if (!room) {
-            return cb('Room does not exist.');
+        if (!topic) {
+            return cb('Topic does not exist.');
         }
-        if (room.archived) {
-            return cb('Room is archived.');
+        if (topic.archived) {
+            return cb('Topic is archived.');
         }
-        if (!room.isAuthorized(options.owner)) {
+        if (!topic.isAuthorized(options.owner)) {
             return cb('Not authorized.');
         }
 
@@ -37,9 +37,9 @@ MessageManager.prototype.create = function(options, cb) {
                 console.error(err);
                 return cb(err);
             }
-            // Touch Room's lastActive
-            room.lastActive = message.posted;
-            room.save();
+            // Touch Topic's lastActive
+            topic.lastActive = message.posted;
+            topic.save();
             // Temporary workaround for _id until populate can do aliasing
             User.findOne(message.owner, function(err, user) {
                 if (err) {
@@ -47,19 +47,19 @@ MessageManager.prototype.create = function(options, cb) {
                     return cb(err);
                 }
 
-                cb(null, message, room, user);
-                this.core.emit('messages:new', message, room, user, options.data);
+                cb(null, message, topic, user);
+                this.core.emit('messages:new', message, topic, user, options.data);
             }.bind(this));
         }.bind(this));
     }.bind(this));
 };
 
 MessageManager.prototype.list = function(options, cb) {
-    var Room = mongoose.model('Room');
+    var Topic = mongoose.model('Topic');
 
     options = options || {};
 
-    if (!options.room) {
+    if (!options.topic) {
         return cb(null, []);
     }
 
@@ -74,7 +74,7 @@ MessageManager.prototype.list = function(options, cb) {
     var Message = mongoose.model('Message');
 
     var find = Message.find({
-        room: options.room
+        topic: options.topic
     });
 
     if (options.since_id) {
@@ -100,8 +100,8 @@ MessageManager.prototype.list = function(options, cb) {
             find.populate('owner', 'id username displayName email avatar');
         }
 
-        if (_.includes(includes, 'room')) {
-            find.populate('room', 'id name');
+        if (_.includes(includes, 'topic')) {
+            find.populate('topic', 'id name');
         }
     }
 
@@ -115,7 +115,7 @@ MessageManager.prototype.list = function(options, cb) {
         find.sort({ 'posted': 1 });
     }
 
-    Room.findById(options.room, function(err, room) {
+    Topic.findById(options.topic, function(err, topic) {
         if (err) {
             console.error(err);
             return cb(err);
@@ -126,7 +126,7 @@ MessageManager.prototype.list = function(options, cb) {
             password: options.password
         };
 
-        room.canJoin(opts, function(err, canJoin) {
+        topic.canJoin(opts, function(err, canJoin) {
             if (err) {
                 console.error(err);
                 return cb(err);

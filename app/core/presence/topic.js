@@ -4,21 +4,21 @@ var EventEmitter = require('events').EventEmitter,
     util = require('util'),
     ConnectionCollection = require('./connection-collection');
 
-function Room(options) {
+function Topic(options) {
     EventEmitter.call(this);
 
     if (options.system) {
-        // This is the system room
+        // This is the system topic
         // Used for tracking what users are online
         this.system = true;
-        this.roomId = undefined;
-        this.roomSlug = undefined;
+        this.topicId = undefined;
+        this.topicSlug = undefined;
         this.hasPassword = false;
     } else {
         this.system = false;
-        this.roomId = options.room._id.toString();
-        this.roomSlug = options.room.slug;
-        this.hasPassword = options.room.hasPassword;
+        this.topicId = options.topic._id.toString();
+        this.topicSlug = options.topic.slug;
+        this.hasPassword = options.topic.hasPassword;
     }
 
     this.connections = new ConnectionCollection();
@@ -35,25 +35,25 @@ function Room(options) {
     this.removeConnection = this.removeConnection.bind(this);
 }
 
-util.inherits(Room, EventEmitter);
+util.inherits(Topic, EventEmitter);
 
-Room.prototype.getUsers = function() {
+Topic.prototype.getUsers = function() {
     return this.connections.getUsers();
 };
 
-Room.prototype.getUserIds = function() {
+Topic.prototype.getUserIds = function() {
     return this.connections.getUserIds();
 };
 
-Room.prototype.getUsernames = function() {
+Topic.prototype.getUsernames = function() {
     return this.connections.getUsernames();
 };
 
-Room.prototype.containsUser = function(userId) {
+Topic.prototype.containsUser = function(userId) {
     return this.getUserIds().indexOf(userId) !== -1;
 };
 
-Room.prototype.emitUserJoin = function(data) {
+Topic.prototype.emitUserJoin = function(data) {
     this.userCount++;
 
     var d = {
@@ -64,15 +64,15 @@ Room.prototype.emitUserJoin = function(data) {
     if (this.system) {
         d.system = true;
     } else {
-        d.roomId = this.roomId;
-        d.roomSlug = this.roomSlug;
-        d.roomHasPassword = this.hasPassword;
+        d.topicId = this.topicId;
+        d.topicSlug = this.topicSlug;
+        d.topicHasPassword = this.hasPassword;
     }
 
     this.emit('user_join', d);
 };
 
-Room.prototype.emitUserLeave = function(data) {
+Topic.prototype.emitUserLeave = function(data) {
     this.userCount--;
 
     var d = {
@@ -84,22 +84,22 @@ Room.prototype.emitUserLeave = function(data) {
     if (this.system) {
         d.system = true;
     } else {
-        d.roomId = this.roomId;
-        d.roomSlug = this.roomSlug;
-        d.roomHasPassword = this.hasPassword;
+        d.topicId = this.topicId;
+        d.topicSlug = this.topicSlug;
+        d.topicHasPassword = this.hasPassword;
     }
 
     this.emit('user_leave', d);
 };
 
-Room.prototype.usernameChanged = function(data) {
+Topic.prototype.usernameChanged = function(data) {
     if (this.containsUser(data.userId)) {
-        // User leaving room
+        // User leaving topic
         this.emitUserLeave({
             userId: data.userId,
             username: data.oldUsername
         });
-        // User rejoining room with new username
+        // User rejoining topic with new username
         this.emitUserJoin({
             userId: data.userId,
             username: data.username
@@ -107,7 +107,7 @@ Room.prototype.usernameChanged = function(data) {
     }
 };
 
-Room.prototype.addConnection = function(connection) {
+Topic.prototype.addConnection = function(connection) {
     if (!connection) {
         console.error('Attempt to add an invalid connection was detected');
         return;
@@ -115,7 +115,7 @@ Room.prototype.addConnection = function(connection) {
 
     if (connection.user && connection.user.id &&
         !this.containsUser(connection.user.id)) {
-        // User joining room
+        // User joining topic
         this.emitUserJoin({
             user: connection.user,
             userId: connection.user.id,
@@ -125,7 +125,7 @@ Room.prototype.addConnection = function(connection) {
     this.connections.add(connection);
 };
 
-Room.prototype.removeConnection = function(connection) {
+Topic.prototype.removeConnection = function(connection) {
     if (!connection) {
         console.error('Attempt to remove an invalid connection was detected');
         return;
@@ -134,7 +134,7 @@ Room.prototype.removeConnection = function(connection) {
     if (this.connections.remove(connection)) {
         if (connection.user && connection.user.id &&
             !this.containsUser(connection.user.id)) {
-            // Leaving room altogether
+            // Leaving topic altogether
             this.emitUserLeave({
                 user: connection.user,
                 userId: connection.user.id,
@@ -144,4 +144,4 @@ Room.prototype.removeConnection = function(connection) {
     }
 };
 
-module.exports = Room;
+module.exports = Topic;

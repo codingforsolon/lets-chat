@@ -75,7 +75,7 @@ Enhancements
 
 Enhancements
 
-* Private and password-protected rooms
+* Private and password-protected topics
 * Private 1-to-1 chat between XMPP users
 * Giphy image search
 * @all mentions are highlighted for everyone
@@ -140,8 +140,8 @@ Fixes
 
 Fixes
 
-* Fixed error when passing an invalid room ID to transcript page
-* Fixed problem where client would join a room twice
+* Fixed error when passing an invalid topic ID to transcript page
+* Fixed problem where client would join a topic twice
 
 ## 0.3.7 (2015-03-01)
 
@@ -158,10 +158,10 @@ Enhancements
 
 Fixes
 
-* Long room names are clipped in the UI (#221)
+* Long topic names are clipped in the UI (#221)
 * User details are updated in message list (#172)
-* XMPP status changes no longer re-trigger room join event (#322)
-* Fixed error when rooms in local storage are no longer available
+* XMPP status changes no longer re-trigger topic join event (#322)
+* Fixed error when topics in local storage are no longer available
 
 ## 0.3.5 (2015-02-26)
 
@@ -171,7 +171,7 @@ Fixes
 * Temporary upload files are cleaned up
 * Fixed UI rendering performance issues
 * Updated login registration form layout
-* Fixed room archive bug
+* Fixed topic archive bug
 * XMPP fixes (chat history and client compatibility)
 
 ## 0.3.4 (2015-02-19)
@@ -185,13 +185,13 @@ Fixes
 
 * Fixed parsing of environment variables
 * Disable autocomplete on password fields
-* Upload modal only shows rooms you have joined
+* Upload modal only shows topics you have joined
 
 ## 0.3.3 (2015-02-14)
 
 Enhancements
 
-* XMPP users can create rooms (if enabled by configuration)
+* XMPP users can create topics (if enabled by configuration)
 * Extra methods can be defined on XMPP message processors
 * Support periods in usernames
 * [Amazon S3](https://github.com/sdelements/lets-chat-s3) support has been extracted into a separate plugin
@@ -200,8 +200,8 @@ Fixes
 
 * Auth token men option when XMPP was disabled (#235)
 * Improved transcript date range picker
-* Chat history didn't load when rejoining room (#242)
-* Error messages not shown when creating a room (#229)
+* Chat history didn't load when rejoining topic (#242)
+* Error messages not shown when creating a topic (#229)
 
 ## 0.3.2 (2015-02-12)
 
@@ -212,7 +212,7 @@ Enhancements
 
 Fixes
 
-* Fixed error on messages andpoint when room parameter not specified (#211)
+* Fixed error on messages andpoint when topic parameter not specified (#211)
 * Fixed undefined error (#210)
 * XMPP root now advertises itself as a server, not conference (#214)
 

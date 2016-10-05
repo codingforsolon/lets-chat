@@ -18,7 +18,7 @@ https:
 
 xmpp:
   enable: false
-  roomCreation: false
+  topicCreation: false
   debug:
     handled: false
     unhandled: false
@@ -31,7 +31,7 @@ xmpp:
     cert: ./server.crt
 
 database:
-  uri: mongodb://localhost/letschat
+  uri: mongodb://localhost/zl
 
 secrets:
   cookie: secretsauce
@@ -70,8 +70,14 @@ giphy:
   limit: 24
   apiKey: dc6zaTOxFJmzC
 
-rooms:
+topics:
   private: false
 
 i18n:
   locale: en
+
+wechat:
+  appId: wxe24aba8dcd519e3a
+  appSecret: 9f397f089f7c6ecdfcf1fad07b0d570b
+  token: z7jQ0g4vFMtgQqYZ5KHan2mj71JPKABR
+  aesKey: B4Yx99rzBygOAKJgeU7N3Pez5onbTePY9oBLQOEfjXu

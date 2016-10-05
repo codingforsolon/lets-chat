@@ -1,33 +1,33 @@
 'use strict';
 
 var Connection = require('./presence/connection'),
-    Room = require('./presence/room'),
+    Topic = require('./presence/topic'),
     ConnectionCollection = require('./presence/connection-collection'),
-    RoomCollection = require('./presence/room-collection'),
+    TopicCollection = require('./presence/topic-collection'),
     UserCollection = require('./presence/user-collection');
 
 function PresenceManager(options) {
     this.core = options.core;
-    this.system = new Room({ system: true });
+    this.system = new Topic({ system: true });
     this.connections = new ConnectionCollection();
-    this.rooms = new RoomCollection();
+    this.topics = new TopicCollection();
     this.users = new UserCollection({ core: this.core });
-    this.rooms.on('user_join', this.onJoin.bind(this));
-    this.rooms.on('user_leave', this.onLeave.bind(this));
+    this.topics.on('user_join', this.onJoin.bind(this));
+    this.topics.on('user_leave', this.onLeave.bind(this));
 
     this.connect = this.connect.bind(this);
-    this.getUserCountForRoom = this.getUserCountForRoom.bind(this);
-    this.getUsersForRoom = this.getUsersForRoom.bind(this);
+    this.getUserCountForTopic = this.getUserCountForTopic.bind(this);
+    this.getUsersForTopic = this.getUsersForTopic.bind(this);
 }
 
-PresenceManager.prototype.getUserCountForRoom = function(roomId) {
-    var room = this.rooms.get(roomId);
-    return room ? room.userCount : 0;
+PresenceManager.prototype.getUserCountForTopic = function(topicId) {
+    var topic = this.topics.get(topicId);
+    return topic ? topic.userCount : 0;
 };
 
-PresenceManager.prototype.getUsersForRoom = function(roomId) {
-    var room = this.rooms.get(roomId);
-    return room ? room.getUsers() : [];
+PresenceManager.prototype.getUsersForTopic = function(topicId) {
+    var topic = this.topics.get(topicId);
+    return topic ? topic.getUsers() : [];
 };
 
 PresenceManager.prototype.connect = function(connection) {
@@ -44,18 +44,18 @@ PresenceManager.prototype.connect = function(connection) {
 PresenceManager.prototype.disconnect = function(connection) {
     this.system.removeConnection(connection);
     this.core.emit('disconnect', connection);
-    this.rooms.removeConnection(connection);
+    this.topics.removeConnection(connection);
 };
 
-PresenceManager.prototype.join = function(connection, room) {
-    var pRoom = this.rooms.getOrAdd(room);
-    pRoom.addConnection(connection);
+PresenceManager.prototype.join = function(connection, topic) {
+    var pTopic = this.topics.getOrAdd(topic);
+    pTopic.addConnection(connection);
 };
 
-PresenceManager.prototype.leave = function(connection, roomId) {
-    var room = this.rooms.get(roomId);
-    if (room) {
-        room.removeConnection(connection);
+PresenceManager.prototype.leave = function(connection, topicId) {
+    var topic = this.topics.get(topicId);
+    if (topic) {
+        topic.removeConnection(connection);
     }
 };
 

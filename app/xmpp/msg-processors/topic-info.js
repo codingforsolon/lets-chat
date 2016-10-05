@@ -5,28 +5,28 @@ var MessageProcessor = require('./../msg-processor');
 module.exports = MessageProcessor.extend({
 
     if: function() {
-        return this.toARoom &&
+        return this.toATopic &&
                this.ns['http://jabber.org/protocol/disco#info'];
     },
 
     then: function(cb) {
-        var roomSlug = this.request.attrs.to.split('@')[0];
+        var topicSlug = this.request.attrs.to.split('@')[0];
 
-        this.core.rooms.slug(roomSlug, function(err, room) {
+        this.core.topics.slug(topicSlug, function(err, topic) {
             if (err) {
                 return cb(err);
             }
 
-            if (!room) {
+            if (!topic) {
                 return this.doesNotExist(cb);
             }
 
-            this.sendInfo(room, cb);
+            this.sendInfo(topic, cb);
 
         }.bind(this));
     },
 
-    sendInfo: function(room, cb) {
+    sendInfo: function(topic, cb) {
         var stanza = this.Iq();
 
         var query = stanza.c('query', {
@@ -36,7 +36,7 @@ module.exports = MessageProcessor.extend({
         query.c('identity', {
             category: 'conference',
             type: 'text',
-            name: room.name
+            name: topic.name
         });
 
         query.c('feature', {

@@ -18,12 +18,12 @@ module.exports = function() {
         middlewares = this.middlewares,
         models = this.models;
 
-    core.on('files:new', function(file, room, user) {
+    core.on('files:new', function(file, topic, user) {
         var fil = file.toJSON();
         fil.owner = user;
-        fil.room = room.toJSON(user);
+        fil.topic = topic.toJSON(user);
 
-        app.io.to(room._id)
+        app.io.to(topic._id)
               .emit('files:new', fil);
     });
 
@@ -47,8 +47,8 @@ module.exports = function() {
             req.io.route('files:create');
         });
 
-    app.route('/rooms/:room/files')
-        .all(middlewares.requireLogin, middlewares.roomRoute)
+    app.route('/topics/:topic/files')
+        .all(middlewares.requireLogin, middlewares.topicRoute)
         .get(function(req) {
             req.io.route('files:list');
         })
@@ -98,7 +98,7 @@ module.exports = function() {
 
             var options = {
                     owner: req.user._id,
-                    room: req.param('room'),
+                    topic: req.param('topic'),
                     file: req.files[0],
                     post: (req.param('post') === 'true') && true
                 };
@@ -116,7 +116,7 @@ module.exports = function() {
                     userId: req.user._id,
                     password: req.param('password'),
 
-                    room: req.param('room'),
+                    topic: req.param('topic'),
                     reverse: req.param('reverse'),
                     skip: req.param('skip'),
                     take: req.param('take'),

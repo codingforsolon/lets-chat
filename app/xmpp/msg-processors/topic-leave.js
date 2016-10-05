@@ -7,23 +7,23 @@ module.exports = MessageProcessor.extend({
     if: function() {
         return this.request.name === 'presence' &&
                this.request.type === 'unavailable' &&
-               this.toARoom;
+               this.toATopic;
     },
 
     then: function(cb) {
-        var roomUrl = this.request.attrs.to.split('/')[0],
-            roomSlug = roomUrl.split('@')[0];
+        var topicUrl = this.request.attrs.to.split('/')[0],
+            topicSlug = topicUrl.split('@')[0];
 
-        this.core.rooms.slug(roomSlug, function(err, room) {
+        this.core.topics.slug(topicSlug, function(err, topic) {
             if (err) {
                 return cb(err);
             }
 
-            if (!room) {
+            if (!topic) {
                 return cb();
             }
 
-            this.core.presence.leave(this.client.conn, room._id);
+            this.core.presence.leave(this.client.conn, topic._id);
 
             var presence = this.Presence({
                 type: 'unavailable'

@@ -10,11 +10,11 @@ module.exports = MessageProcessor.extend({
     if: function() {
         return this.request.name === 'message' &&
                this.request.type === 'groupchat' &&
-               this.toARoom;
+               this.toATopic;
     },
 
     then: function(cb) {
-        var roomSlug = this.request.attrs.to.split('@')[0];
+        var topicSlug = this.request.attrs.to.split('@')[0];
 
         var body = _.find(this.request.children, function (child) {
             return child.name === 'body';
@@ -24,19 +24,19 @@ module.exports = MessageProcessor.extend({
             return cb();
         }
 
-        this.core.rooms.slug(roomSlug, function(err, room) {
+        this.core.topics.slug(topicSlug, function(err, topic) {
             if (err) {
                 return cb(err);
             }
 
-            if (!room) {
+            if (!topic) {
                 return cb();
             }
 
             var text = body.text().replace(mentionPattern, function(group) {
 
-                var usernames = this.core.presence.rooms
-                                    .get(room._id).getUsernames();
+                var usernames = this.core.presence.topics
+                                    .get(topic._id).getUsernames();
 
                 var username = group.substring(0, group.length - 1);
 
@@ -51,7 +51,7 @@ module.exports = MessageProcessor.extend({
 
             var options = {
                 owner: this.client.user._id,
-                room: room._id,
+                topic: topic._id,
                 text: text,
                 data: {
                     id: this.request.attrs.id

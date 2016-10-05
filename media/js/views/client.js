@@ -21,26 +21,26 @@
             // Subviews
             //
             this.browser = new window.LCB.BrowserView({
-                el: this.$el.find('.lcb-rooms-browser'),
-                rooms: this.client.rooms,
+                el: this.$el.find('.lcb-topics-browser'),
+                topics: this.client.topics,
                 client: this.client
             });
             this.tabs = new window.LCB.TabsView({
                 el: this.$el.find('.lcb-tabs'),
-                rooms: this.client.rooms,
+                topics: this.client.topics,
                 client: this.client
             });
             this.panes = new window.LCB.PanesView({
                 el: this.$el.find('.lcb-panes'),
-                rooms: this.client.rooms,
+                topics: this.client.topics,
                 client: this.client
             });
             this.window = new window.LCB.WindowView({
-                rooms: this.client.rooms,
+                topics: this.client.topics,
                 client: this.client
             });
             this.hotKeys = new window.LCB.HotKeysView({
-                rooms: this.client.rooms,
+                topics: this.client.topics,
                 client: this.client
             });
             this.status = new window.LCB.StatusView({
@@ -52,13 +52,13 @@
                 model: this.client.user
             });
             this.desktopNotifications = new window.LCB.DesktopNotificationsView({
-                rooms: this.client.rooms,
+                topics: this.client.topics,
                 client: this.client
             });
             if (this.client.options.filesEnabled) {
                 this.upload = new window.LCB.UploadView({
                     el: this.$el.find('#lcb-upload'),
-                    rooms: this.client.rooms
+                    topics: this.client.topics
                 });
             }
 

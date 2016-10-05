@@ -9,7 +9,7 @@ module.exports = MessageProcessor.extend({
     if: function() {
         return this.request.name === 'message' &&
                this.request.type === 'chat' &&
-               !this.toARoom &&
+               !this.toATopic &&
                this.request.attrs.to;
     },
 

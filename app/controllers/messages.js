@@ -10,12 +10,12 @@ module.exports = function() {
         core = this.core,
         middlewares = this.middlewares;
 
-    core.on('messages:new', function(message, room, user) {
+    core.on('messages:new', function(message, topic, user) {
         var msg = message.toJSON();
         msg.owner = user;
-        msg.room = room.toJSON(user);
+        msg.topic = topic.toJSON(user);
 
-        app.io.to(room.id)
+        app.io.to(topic.id)
               .emit('messages:new', msg);
     });
 
@@ -31,8 +31,8 @@ module.exports = function() {
             req.io.route('messages:create');
         });
 
-    app.route('/rooms/:room/messages')
-        .all(middlewares.requireLogin, middlewares.roomRoute)
+    app.route('/topics/:topic/messages')
+        .all(middlewares.requireLogin, middlewares.topicRoute)
         .get(function(req) {
             req.io.route('messages:list');
         })
@@ -47,7 +47,7 @@ module.exports = function() {
         create: function(req, res) {
             var options = {
                     owner: req.user._id,
-                    room: req.param('room'),
+                    topic: req.param('topic'),
                     text: req.param('text')
                 };
 
@@ -63,7 +63,7 @@ module.exports = function() {
                     userId: req.user._id,
                     password: req.param('password'),
 
-                    room: req.param('room'),
+                    topic: req.param('topic'),
                     since_id: req.param('since_id'),
                     from: req.param('from'),
                     to: req.param('to'),

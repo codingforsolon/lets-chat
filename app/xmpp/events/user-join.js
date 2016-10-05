@@ -8,12 +8,12 @@ module.exports = EventListener.extend({
     on: 'presence:user_join',
 
     then: function(data) {
-        var connections = this.getConnectionsForRoom(data.roomId);
+        var connections = this.getConnectionsForTopic(data.topicId);
 
         connections.forEach(function(connection) {
             var presence = new Presence({
-                to: connection.jid(data.roomSlug),
-                from: connection.getRoomJid(data.roomSlug, data.username)
+                to: connection.jid(data.topicSlug),
+                from: connection.getTopicJid(data.topicSlug, data.username)
             });
 
             presence

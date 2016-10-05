@@ -24,20 +24,20 @@ XmppConnection.prototype.disconnect = function() {
     }
 };
 
-XmppConnection.prototype.jid = function(room) {
-    if (room) {
-        return room + '@' + this.getConfDomain() +
-               '/' + (this.nickname(room) || this._jid.local);
+XmppConnection.prototype.jid = function(topic) {
+    if (topic) {
+        return topic + '@' + this.getConfDomain() +
+               '/' + (this.nickname(topic) || this._jid.local);
     }
 
     return this._jid.local + '@' + this.getDomain();
 };
 
-XmppConnection.prototype.nickname = function(room, value) {
+XmppConnection.prototype.nickname = function(topic, value) {
     if (value) {
-        this.nicknames[room] = value;
+        this.nicknames[topic] = value;
     }
-    return this.nicknames[room];
+    return this.nicknames[topic];
 };
 
 XmppConnection.prototype.getDomain = function() {
@@ -57,12 +57,12 @@ XmppConnection.prototype.getUserJid = function(username) {
     return username + '@' + domain;
 };
 
-XmppConnection.prototype.getRoomJid = function(roomId, username) {
+XmppConnection.prototype.getTopicJid = function(topicId, username) {
     if (username && username === this.user.username) {
-        return this.jid(roomId);
+        return this.jid(topicId);
     }
 
-    var jid = roomId + '@' + this.getConfDomain();
+    var jid = topicId + '@' + this.getConfDomain();
     if (username) {
         jid += '/' + username;
     }

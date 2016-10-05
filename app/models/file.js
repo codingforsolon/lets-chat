@@ -5,9 +5,9 @@ var Schema = mongoose.Schema,
     ObjectId = Schema.ObjectId;
 
 var FileSchema = new Schema({
-    room: {
+    topic: {
         type: ObjectId,
-        ref: 'Room',
+        ref: 'Topic',
         required: true
     },
     owner: {
@@ -49,10 +49,10 @@ FileSchema.method('toJSON', function(user) {
         uploaded: this.uploaded
     };
 
-    if (this.room._id) {
-        data.room = this.room.toJSON(user);
+    if (this.topic._id) {
+        data.topic = this.topic.toJSON(user);
     } else {
-        data.room = this.room;
+        data.topic = this.topic;
     }
 
     return data;

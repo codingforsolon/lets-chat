@@ -5,7 +5,7 @@ var MessageProcessor = require('./../msg-processor');
 module.exports = MessageProcessor.extend({
 
     if: function() {
-        return this.toARoom &&
+        return this.toATopic &&
                this.ns['http://jabber.org/protocol/disco#items'];
     },
 

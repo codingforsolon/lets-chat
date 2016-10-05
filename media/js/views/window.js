@@ -29,26 +29,26 @@
             var that = this;
 
             this.client = options.client;
-            this.rooms = options.rooms;
+            this.topics = options.topics;
             this.originalTitle = document.title;
             this.title = this.originalTitle;
 
             $(window).on('focus blur', _.bind(this.onFocusBlur, this));
 
-            this.rooms.current.on('change:id', function(current, id) {
-                var room = this.rooms.get(id),
-                    title = room ? room.get('name') : 'Rooms';
+            this.topics.current.on('change:id', function(current, id) {
+                var topic = this.topics.get(id),
+                    title = topic ? topic.get('name') : 'Topics';
                 this.updateTitle(title);
             }, this);
 
-            this.rooms.on('change:name', function(room) {
-                if (room.id !== this.rooms.current.get('id')) {
+            this.topics.on('change:name', function(topic) {
+                if (topic.id !== this.topics.current.get('id')) {
                     return;
                 }
-                this.updateTitle(room.get('name'));
+                this.updateTitle(topic.get('name'));
             }, this);
 
-            this.rooms.on('messages:new', this.onNewMessage, this);
+            this.topics.on('messages:new', this.onNewMessage, this);
 
             // Last man standing
             _.defer(function() {
@@ -111,8 +111,8 @@
         },
         updateTitle: function(name) {
             if (!name) {
-                var room = this.rooms.get(this.rooms.current.get('id'));
-                name = (room && room.get('name')) || 'Rooms';
+                var topic = this.topics.get(this.topics.current.get('id'));
+                name = (topic && topic.get('name')) || 'Topics';
             }
             if (name) {
                 this.title = name + ' \u00B7 ' + this.originalTitle;
@@ -126,30 +126,30 @@
     window.LCB.HotKeysView = Backbone.View.extend({
         el: 'html',
         keys: {
-            'up+shift+alt down+shift+alt': 'nextRoom',
-            's+shift+alt': 'toggleRoomSidebar',
+            'up+shift+alt down+shift+alt': 'nextTopic',
+            's+shift+alt': 'toggleTopicSidebar',
             'g+shift+alt': 'openGiphyModal',
-            'space+shift+alt': 'recallRoom'
+            'space+shift+alt': 'recallTopic'
         },
         initialize: function(options) {
             this.client = options.client;
-            this.rooms = options.rooms;
+            this.topics = options.topics;
         },
-        nextRoom: function(e) {
+        nextTopic: function(e) {
             var method = e.keyCode === 40 ? 'next' : 'prev',
                 selector = e.keyCode === 40 ? 'first' : 'last',
                 $next = this.$('.lcb-tabs').find('[data-id].selected')[method]();
             if ($next.length === 0) {
                 $next = this.$('.lcb-tabs').find('[data-id]:' + selector);
             }
-            this.client.events.trigger('rooms:switch', $next.data('id'));
+            this.client.events.trigger('topics:switch', $next.data('id'));
         },
-        recallRoom: function() {
-            this.client.events.trigger('rooms:switch', this.rooms.last.get('id'));
+        recallTopic: function() {
+            this.client.events.trigger('topics:switch', this.topics.last.get('id'));
         },
-        toggleRoomSidebar: function(e) {
+        toggleTopicSidebar: function(e) {
             e.preventDefault();
-            var view = this.client.view.panes.views[this.rooms.current.get('id')];
+            var view = this.client.view.panes.views[this.topics.current.get('id')];
             view && view.toggleSidebar && view.toggleSidebar();
         },
         openGiphyModal: function(e) {
@@ -169,9 +169,9 @@
                 pageVisibility: false
             });
             this.client = options.client;
-            this.rooms = options.rooms;
+            this.topics = options.topics;
             $(window).on('focus blur unload', _.bind(this.onFocusBlur, this));
-            this.rooms.on('messages:new', this.onNewMessage, this);
+            this.topics.on('messages:new', this.onNewMessage, this);
         },
         onFocusBlur: function(e) {
             this.focus = (e.type === 'focus');
@@ -194,10 +194,10 @@
                 return;
             }
 
-            var roomID = message.room.id,
+            var topicID = message.topic.id,
                 avatar = message.owner.avatar,
                 icon = 'https://www.gravatar.com/avatar/' + avatar + '?s=50',
-                title = message.owner.displayName + ' in ' + message.room.name,
+                title = message.owner.displayName + ' in ' + message.topic.name,
                 mention = message.mentioned;
 
             var notification = notify.createNotification(title, {
@@ -206,7 +206,7 @@
                 tag: message.id,
                 onclick: function() {
                     window.focus();
-                    that.client.events.trigger('rooms:switch', roomID);
+                    that.client.events.trigger('topics:switch', topicID);
                 }
             });
 

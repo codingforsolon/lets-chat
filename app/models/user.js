@@ -16,18 +16,26 @@ var bcrypt = require('bcryptjs'),
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var UserSchema = new mongoose.Schema({
-    provider: {
+    openId: {
         type: String,
-        required: true,
         trim: true
     },
-    uid: {
+    name: {
         type: String,
-        required: false,
+        trim: true
+    },
+    avatar: {
+        type: String,
+        trim: true
+    },
+    sex: {
+        type: String,
+        trim: true
+    },
+    phone: {
+        type: String,
         trim: true,
-        validate: [function(v) {
-            return (v.length <= 24);
-        }, 'invalid ldap/kerberos username']
+        unique: true
     },
     email: {
         type: String,
@@ -39,57 +47,35 @@ var UserSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: false, // Only required if local
-        trim: true,
-        match: new RegExp(settings.auth.local.passwordRegex),
-        set: function(value) {
-            // User can only change their password if it's a local account
-            if (this.local) {
-                return value;
-            }
-            return this.password;
-        }
-    },
-    token: {
-        type: String,
-        required: false,
         trim: true
     },
-    firstName: {
-        type: String,
-        required: true,
-        trim: true
+    privateAsk: {
+        type: Boolean
     },
-    lastName: {
-        type: String,
-        required: true,
-        trim: true
+    isSubscribe: {
+        type: Boolean
     },
-    username: {
-        type: String,
-        required: true,
-        trim: true,
-        lowercase: true,
-        unique: true,
-        match: /^[\w][\w\-\.]*[\w]$/i
+    credit: {
+        type: Number
     },
-    displayName: {
-        type: String,
-        required: true,
-        trim: true
+    freezeCredit: {
+        type: Number
     },
-    joined: {
+    totalDeposit: {
+        type: Number
+    },
+    createdAt: {
         type: Date,
         default: Date.now
     },
-    status: {
-        type: String,
-        trim: true
+    updatedAt: {
+        type: Date,
+        default: Date.now
     },
-    rooms: [{
+    room: {
 		type: ObjectId,
 		ref: 'Room'
-    }],
+    },
 	messages: [{
 		type: ObjectId,
 		ref: 'Message'

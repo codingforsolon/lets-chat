@@ -86,14 +86,14 @@
         }
     });
 
-    window.LCB.RoomPasswordModalView = Backbone.View.extend({
+    window.LCB.TopicPasswordModalView = Backbone.View.extend({
         events: {
-            'click .btn-primary': 'enterRoom'
+            'click .btn-primary': 'enterTopic'
         },
         initialize: function(options) {
             this.render();
-            this.$name = this.$('.lcb-room-password-name');
-            this.$password = this.$('input.lcb-room-password-required');
+            this.$name = this.$('.lcb-topic-password-name');
+            this.$password = this.$('input.lcb-topic-password-required');
         },
         render: function() {
             // this.$el.on('shown.bs.modal hidden.bs.modal',
@@ -102,10 +102,10 @@
         show: function(options) {
             this.callback = options.callback;
             this.$password.val('');
-            this.$name.text(options.roomName || '');
+            this.$name.text(options.topicName || '');
             this.$el.modal('show');
         },
-        enterRoom: function() {
+        enterTopic: function() {
             this.$el.modal('hide');
             this.callback(this.$password.val());
         }
