@@ -3,6 +3,7 @@
 var EventEmitter = require('events').EventEmitter,
     util = require('util'),
     _ = require('lodash'),
+    RoomManager = require('./rooms'),
     AccountManager = require('./account'),
     AvatarCache = require('./avatar-cache'),
     FileManager = require('./files'),
@@ -14,6 +15,10 @@ var EventEmitter = require('events').EventEmitter,
 
 function Core() {
     EventEmitter.call(this);
+
+    this.rooms = new RoomManager({
+        core: this
+    });
 
     this.account = new AccountManager({
         core: this

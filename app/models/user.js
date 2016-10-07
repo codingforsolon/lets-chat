@@ -20,6 +20,10 @@ var UserSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    unionId: {
+        type: String,
+        trim: true
+    },
     name: {
         type: String,
         trim: true
@@ -39,7 +43,6 @@ var UserSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
         trim: true,
         lowercase: true,
         unique: true,
@@ -50,19 +53,24 @@ var UserSchema = new mongoose.Schema({
         trim: true
     },
     privateAsk: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     isSubscribe: {
-        type: Boolean
+        type: Boolean,
+        default: true
     },
     credit: {
-        type: Number
+        type: Number,
+        default: 0
     },
     freezeCredit: {
-        type: Number
+        type: Number,
+        default: 0
     },
     totalDeposit: {
-        type: Number
+        type: Number,
+        default: 0
     },
     createdAt: {
         type: Date,
@@ -72,10 +80,10 @@ var UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    room: {
+    room: [{
 		type: ObjectId,
 		ref: 'Room'
-    },
+    }],
 	messages: [{
 		type: ObjectId,
 		ref: 'Message'
@@ -89,31 +97,28 @@ var UserSchema = new mongoose.Schema({
     }
 });
 
-UserSchema.virtual('local').get(function() {
-    return this.provider === 'local';
-});
+UserSchema.statics.findByOpenId = function(openId, cb) {
+    this.findOne({'openId': openId}, cb);
+};
 
-UserSchema.virtual('avatar').get(function() {
-    if (!this.email) {
-      return null;
-    }
-    return md5(this.email);
-});
+// UserSchema.virtual('local').get(function() {
+//     return this.provider === 'local';
+// });
 
-UserSchema.pre('save', function(next) {
-    var user = this;
-    if (!user.isModified('password')) {
-        return next();
-    }
-
-    bcrypt.hash(user.password, 10, function(err, hash) {
-        if (err) {
-            return next(err);
-        }
-        user.password = hash;
-        next();
-    });
-});
+// UserSchema.pre('save', function(next) {
+//     var user = this;
+//     if (!user.isModified('password')) {
+//         return next();
+//     }
+//
+//     bcrypt.hash(user.password, 10, function(err, hash) {
+//         if (err) {
+//             return next(err);
+//         }
+//         user.password = hash;
+//         next();
+//     });
+// });
 
 UserSchema.statics.findByIdentifier = function(identifier, cb) {
     var opts = {};
