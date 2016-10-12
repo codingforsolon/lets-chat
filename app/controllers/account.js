@@ -84,6 +84,8 @@ module.exports = function() {
     //
     app.io.route('account', {
         whoami: function(req, res) {
+            console.log('who am i');
+            // console.log(req.user);
             res.json(req.user);
         },
         profile: function(req, res) {

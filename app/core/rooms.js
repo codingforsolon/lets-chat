@@ -12,7 +12,6 @@ RoomManager.prototype.create = function(options, cb) {
     var Room = mongoose.model('Room');
     Room.create(options, function(err, room) {
         console.log('in create');
-        console.log(this);
         if (err) {
             return cb(err);
         }
@@ -23,13 +22,12 @@ RoomManager.prototype.create = function(options, cb) {
     }.bind(this));
 };
 
-RoomManager.prototype.findByOwner = function(ownerId, cb) {
+RoomManager.prototype.findByOwner = function(owner, cb) {
     var Room = mongoose.model('Room');
-    Room.findOne({owner: ownerId}, function(err, room) {
+    Room.findOne({owner: owner}).exec(function(err, room) {
         if (err) {
             return cb(err);
         }
-
         if (cb) {
             cb(null, room);
         }

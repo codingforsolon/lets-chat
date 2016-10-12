@@ -97,11 +97,11 @@ MessageManager.prototype.list = function(options, cb) {
         var includes = options.expand.replace(/\s/, '').split(',');
 
         if (_.includes(includes, 'owner')) {
-            find.populate('owner', 'id username displayName email avatar');
+            find.populate('owner', 'id name avatar');
         }
 
         if (_.includes(includes, 'topic')) {
-            find.populate('topic', 'id name');
+            find.populate('topic', 'id title');
         }
     }
 

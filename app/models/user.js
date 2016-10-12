@@ -80,7 +80,7 @@ var UserSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    room: [{
+    rooms: [{
 		type: ObjectId,
 		ref: 'Room'
     }],
@@ -261,10 +261,8 @@ UserSchema.plugin(uniqueValidator, {
 UserSchema.method('toJSON', function() {
     return {
         id: this._id,
-        firstName: this.firstName,
-        lastName: this.lastName,
-        username: this.username,
-        displayName: this.displayName,
+        _id: this._id,
+        name: this.name,
         avatar: this.avatar
     };
 });

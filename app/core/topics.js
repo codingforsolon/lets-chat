@@ -65,9 +65,7 @@ TopicManager.prototype.create = function(options, cb) {
         }
 
         if (cb) {
-            topic = topic;
             cb(null, topic);
-            this.core.emit('topics:new', topic);
         }
     }.bind(this));
 };
@@ -120,94 +118,32 @@ TopicManager.prototype.update = function(topicId, options, cb) {
     }.bind(this));
 };
 
-TopicManager.prototype.archive = function(topicId, cb) {
-    var Topic = mongoose.model('Topic');
-
-    Topic.findById(topicId, function(err, topic) {
-        if (err) {
-            // Oh noes, a bad thing happened!
-            console.error(err);
-            return cb(err);
-        }
-
-        if (!topic) {
-            return cb('Topic does not exist.');
-        }
-
-        topic.archived = true;
-        topic.save(function(err, topic) {
-            if (err) {
-                console.error(err);
-                return cb(err);
-            }
-            cb(null, topic);
-            this.core.emit('topics:archive', topic);
-
-        }.bind(this));
-    }.bind(this));
-};
-
-TopicManager.prototype.list = function(options, cb) {
-    options = options || {};
-
-    options = helpers.sanitizeQuery(options, {
-        defaults: {
-            take: 500
-        },
-        maxTake: 5000
-    });
-
-    var Topic = mongoose.model('Topic');
-
-    var find = Topic.find({
-        archived: { $ne: true },
-        $or: [
-            {private: {$exists: false}},
-            {private: false},
-
-            {owner: options.userId},
-
-            {participants: options.userId},
-
-            {password: {$exists: true, $ne: ''}}
-        ]
-    });
-
-    if (options.skip) {
-        find.skip(options.skip);
-    }
-
-    if (options.take) {
-        find.limit(options.take);
-    }
-
-    if (options.sort) {
-        var sort = options.sort.replace(',', ' ');
-        find.sort(sort);
-    } else {
-        find.sort('-lastActive');
-    }
-
-    find.populate('participants');
-
-    find.exec(function(err, topics) {
-        if (err) {
-            return cb(err);
-        }
-
-        _.each(topics, function(topic) {
-            this.sanitizeTopic(options, topic);
-        }.bind(this));
-
-        if (options.users && !options.sort) {
-            topics = _.sortBy(topics, ['userCount', 'lastActive'])
-                     .reverse();
-        }
-
-        cb(null, topics);
-
-    }.bind(this));
-};
+// TopicManager.prototype.archive = function(topicId, cb) {
+//     var Topic = mongoose.model('Topic');
+//
+//     Topic.findById(topicId, function(err, topic) {
+//         if (err) {
+//             // Oh noes, a bad thing happened!
+//             console.error(err);
+//             return cb(err);
+//         }
+//
+//         if (!topic) {
+//             return cb('Topic does not exist.');
+//         }
+//
+//         topic.archived = true;
+//         topic.save(function(err, topic) {
+//             if (err) {
+//                 console.error(err);
+//                 return cb(err);
+//             }
+//             cb(null, topic);
+//             this.core.emit('topics:archive', topic);
+//
+//         }.bind(this));
+//     }.bind(this));
+// };
 
 TopicManager.prototype.sanitizeTopic = function(options, topic) {
     var authorized = options.userId && topic.isAuthorized(options.userId);
@@ -249,8 +185,7 @@ TopicManager.prototype.get = function(options, cb) {
     }
 
     options.criteria = {
-        _id: identifier,
-        archived: { $ne: true }
+        _id: identifier
     };
 
     this.findOne(options, cb);

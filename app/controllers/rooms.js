@@ -19,22 +19,26 @@ module.exports = function() {
     app.route('/rooms')
         .all(middlewares.wechatAuth)
         .get(function(req, res) {
-            var user = req.session.wxUser;
-            console.log(user);
+            var user = req.user;
             console.log(user.name);
-            core.rooms.findByOwner(user.openId, function(err, room) {
+            core.rooms.findByOwner(user, function(err, room) {
                 if (!room) {
-                    res.render('room/new.html');
+                    if (req.query.type == 'create') {
+                        res.render('room/form.html');
+                    } else {
+                        res.render('room/new.html');
+                    }
                 } else {
-
+                    res.render('room/index.html', {
+                        roomId: room._id
+                    });
                 }
             });
         })
         .post(function(req, res) {
             console.log(req.body);
-
             var data = {
-                owner: req.param('_id'),
+                owner: req.session.wxUser._id,
                 phone: req.param('phone'),
                 name: req.param('name')
             };
@@ -44,8 +48,7 @@ module.exports = function() {
                     console.error(err);
                     return res.status(400).json(err);
                 }
-
-                return res.status(201).json(room.toJSON());
+                res.render('room/index.html');
             });
         });
 };

@@ -24,8 +24,10 @@ module.exports = function() {
         core = this.core,
         User = this.models.user;
 
+    console.log('on connection');
     app.io.on('connection', function(socket) {
         var userId = socket.request.user._id;
+        console.log('user id is : ' + userId);
         User.findById(userId, function (err, user) {
             if (err) {
                 console.error(err);

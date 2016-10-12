@@ -43,8 +43,6 @@ module.exports = function() {
 
     var getEmitters = function(topic) {
         if (topic.private && !topic.hasPassword) {
-            console.log('~~~~~~~~~');
-            console.log(topic);
             var connections = core.presence.connections.query({
                 type: 'socket.io'
             }).filter(function(connection) {
@@ -65,9 +63,7 @@ module.exports = function() {
     };
 
     core.on('topics:new', function(topic) {
-        console.log('server core emit');
         var emitters = getEmitters(topic);
-        console.log(emitters);
         emitters.forEach(function(e) {
             e.emitter.emit('topics:new', topic.toJSON(e.user));
         });
@@ -91,25 +87,51 @@ module.exports = function() {
     //
     // Routes
     //
-    app.route('/topics')
-        .all(middlewares.requireLogin)
-        .get(function(req) {
-            req.io.route('topics:list');
+    app.route('/rooms/:room/topics')
+        .all(middlewares.wechatAuth, middlewares.roomRoute)
+        .get(function(req, res) {
+            res.render('topic/form.html', {
+                roomId: req.params.roomId
+            });
         })
-        .post(function(req) {
-            req.io.route('topics:create');
+        .post(function(req, res) {
+            var data = {
+                room: req.params.roomId,
+                owner: req.user._id,
+                title: req.param('title')
+            };
+
+            core.topics.create(data, function(err, topic) {
+                if (err) {
+                    console.error(err);
+                    return res.status(400).json(err);
+                }
+                res.render('topic/index.html', {
+                    topic: topic
+                });
+            });
         });
 
-    app.route('/topics/:topic')
-        .all(middlewares.requireLogin, middlewares.topicRoute)
-        .get(function(req) {
-            req.io.route('topics:get');
+    app.route('/rooms/:room/topics/:topic')
+        .all(middlewares.wechatAuth, middlewares.roomRoute, middlewares.topicRoute)
+        .get(function(req, res) {
+            res.render('topic/index.html', {
+                topic: req.params.topic
+            });
         })
         .put(function(req) {
             req.io.route('topics:update');
         })
         .delete(function(req) {
             req.io.route('topics:archive');
+        });
+
+    app.route('/rooms/:room/topics/:topic/chat')
+        .all(middlewares.wechatAuth, middlewares.roomRoute, middlewares.topicRoute)
+        .get(function(req, res) {
+            res.render('topic/chat.html', {
+                topic: req.params.topic
+            });
         });
 
     app.route('/topics/:topic/users')
@@ -123,46 +145,35 @@ module.exports = function() {
     // Sockets
     //
     app.io.route('topics', {
-        list: function(req, res) {
-            var options = {
-                    userId: req.user._id,
-                    users: req.param('users'),
-
-                    skip: req.param('skip'),
-                    take: req.param('take')
-                };
-
-            core.topics.list(options, function(err, topics) {
-                if (err) {
-                    console.error(err);
-                    return res.status(400).json(err);
-                }
-
-                var results = topics.map(function(topic) {
-                    return topic.toJSON(req.user);
-                });
-
-                res.json(results);
-            });
-        },
         get: function(req, res) {
-            var options = {
-                userId: req.user._id,
-                identifier: req.param('topic') || req.param('id')
-            };
-
-            core.topics.get(options, function(err, topic) {
-                if (err) {
-                    console.error(err);
-                    return res.status(400).json(err);
-                }
-
-                if (!topic) {
-                    return res.sendStatus(404);
-                }
-
-                res.json(topic.toJSON(req.user));
+            var Topic = models.topic;
+            Topic.findById(req.param('topicId'), function (err, topic) {
+                var User = models.user;
+                User.findById(topic.owner, function (err, user) {
+                    res.json({topic: topic, user: user});
+                });
             });
+            // req.session.topic.populate('owner').exec(function (err, user) {
+            //     console.log(user);
+            //     res.json('ok');
+            // });
+            // var options = {
+            //     userId: req.user._id,
+            //     identifier: req.param('topic') || req.param('id')
+            // };
+            //
+            // core.topics.get(options, function(err, topic) {
+            //     if (err) {
+            //         console.error(err);
+            //         return res.status(400).json(err);
+            //     }
+            //
+            //     if (!topic) {
+            //         return res.sendStatus(404);
+            //     }
+            //
+            //     res.json(topic.toJSON(req.user));
+            // });
         },
         create: function(req, res) {
             var options = {
@@ -223,7 +234,6 @@ module.exports = function() {
 
             core.topics.archive(topicId, function(err, topic) {
                 if (err) {
-                    console.log(err);
                     return res.sendStatus(400);
                 }
 

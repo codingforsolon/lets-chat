@@ -25,12 +25,14 @@
         },
         initialize: function(options) {
             this.client = options.client;
-
             var iAmOwner = this.model.get('owner') === this.client.user.id;
             var iCanEdit = iAmOwner || !this.model.get('hasPassword');
 
             this.model.set('iAmOwner', iAmOwner);
             this.model.set('iCanEdit', iCanEdit);
+
+            console.log('==========>');
+            console.log(this.model);
 
             this.template = options.template;
             this.messageTemplate =
@@ -54,10 +56,12 @@
             });
         },
         render: function() {
-            this.$el = $(this.template(_.extend(this.model.toJSON(), {
-                sidebar: store.get('sidebar')
-            })));
+            console.log('render topic=======>');
+            console.log(this.model.toJSON());
+            this.$el = $(this.template(_.extend(this.model.toJSON())));
             this.$messages = this.$('.lcb-messages');
+            // console.log('in render topic');
+            // console.log(this.$el.html());
             // Scroll Locking
             this.scrollLocked = true;
             this.$messages.on('scroll',  _.bind(this.updateScrollLock, this));
@@ -376,6 +380,10 @@
             // Templatin' time
             var $html = $(this.messageTemplate(message).trim());
             var $text = $html.find('.lcb-message-text');
+
+            console.log('add message');
+            console.log(message);
+            console.log($html.html());
 
             var that = this;
             this.formatMessage($text.html(), function(text) {

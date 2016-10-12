@@ -996,8 +996,8 @@
   image: moyai.png
 - emote: "muscle"
   image: muscle.png
-- emote: "mushroom"
-  image: mushroom.png
+- emote: "mushtopic"
+  image: mushtopic.png
 - emote: "musical_keyboard"
   image: musical_keyboard.png
 - emote: "musical_note"
@@ -1274,8 +1274,8 @@
   image: repeat_one.png
 - emote: "repeat"
   image: repeat.png
-- emote: "restroom"
-  image: restroom.png
+- emote: "resttopic"
+  image: resttopic.png
 - emote: "revolving_hearts"
   image: revolving_hearts.png
 - emote: "rewind"

@@ -82,6 +82,9 @@ module.exports = function() {
                 messages = messages.map(function(message) {
                     return message.toJSON(req.user);
                 });
+                // console.log('list messages---------->');
+                // console.log(req.user);
+                // console.log(messages);
 
                 res.json(messages);
             });

@@ -53,14 +53,21 @@ var RoomSchema = new mongoose.Schema({
         ref: 'Like'
     },
     credit: {
-        type: Number
+        type: Number,
+        default: 0
     },
     totalDeposit: {
-        type: Number
+        type: Number,
+        default: 0
     },
     canLike: {
-        type: Boolean
+        type: Boolean,
+        default: true
     },
+    topics: [{
+        type: ObjectId,
+        ref: 'Topic'
+    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -75,6 +82,9 @@ RoomSchema.plugin(uniqueValidator, {
     message: 'Expected {PATH} to be unique'
 });
 
+RoomSchema.statics.findById = function(id, cb) {
+    this.findOne({_id: id}, cb);
+};
 
 // RoomSchema.method('toJSON', function(user) {
 //     var userId = user ? (user._id || user.id || user) : null;

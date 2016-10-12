@@ -20,68 +20,56 @@
             //
             // Subviews
             //
-            this.browser = new window.LCB.BrowserView({
-                el: this.$el.find('.lcb-topics-browser'),
-                topics: this.client.topics,
-                client: this.client
-            });
-            this.tabs = new window.LCB.TabsView({
-                el: this.$el.find('.lcb-tabs'),
-                topics: this.client.topics,
-                client: this.client
-            });
+            // this.browser = new window.LCB.BrowserView({
+            //     el: this.$el.find('.lcb-topics-browser'),
+            //     topics: this.client.topic,
+            //     client: this.client
+            // });
             this.panes = new window.LCB.PanesView({
                 el: this.$el.find('.lcb-panes'),
-                topics: this.client.topics,
+                topic: this.client.topic,
                 client: this.client
             });
-            this.window = new window.LCB.WindowView({
-                topics: this.client.topics,
-                client: this.client
-            });
-            this.hotKeys = new window.LCB.HotKeysView({
-                topics: this.client.topics,
-                client: this.client
-            });
-            this.status = new window.LCB.StatusView({
-                el: this.$el.find('.lcb-status-indicators'),
-                client: this.client
-            });
-            this.accountButton = new window.LCB.AccountButtonView({
-                el: this.$el.find('.lcb-account-button'),
-                model: this.client.user
-            });
-            this.desktopNotifications = new window.LCB.DesktopNotificationsView({
-                topics: this.client.topics,
-                client: this.client
-            });
-            if (this.client.options.filesEnabled) {
-                this.upload = new window.LCB.UploadView({
-                    el: this.$el.find('#lcb-upload'),
-                    topics: this.client.topics
-                });
-            }
+            // this.window = new window.LCB.WindowView({
+            //     topics: this.client.topic,
+            //     client: this.client
+            // });
+            // this.hotKeys = new window.LCB.HotKeysView({
+            //     topics: this.client.topic,
+            //     client: this.client
+            // });
+            // this.status = new window.LCB.StatusView({
+            //     el: this.$el.find('.lcb-status-indicators'),
+            //     client: this.client
+            // });
+            //
+            // if (this.client.options.filesEnabled) {
+            //     this.upload = new window.LCB.UploadView({
+            //         el: this.$el.find('#lcb-upload'),
+            //         topics: this.client.topic
+            //     });
+            // }
 
             //
             // Modals
             //
-            this.profileModal = new window.LCB.ProfileModalView({
-                el: this.$el.find('#lcb-profile'),
-                model: this.client.user
-            });
-            this.accountModal = new window.LCB.AccountModalView({
-                el: this.$el.find('#lcb-account'),
-                model: this.client.user
-            });
-            this.tokenModal = new window.LCB.AuthTokensModalView({
-                el: this.$el.find('#lcb-tokens')
-            });
-            this.notificationsModal = new window.LCB.NotificationsModalView({
-                el: this.$el.find('#lcb-notifications')
-            });
-            this.giphyModal = new window.LCB.GiphyModalView({
-                el: this.$el.find('#lcb-giphy')
-            });
+            // this.profileModal = new window.LCB.ProfileModalView({
+            //     el: this.$el.find('#lcb-profile'),
+            //     model: this.client.user
+            // });
+            // this.accountModal = new window.LCB.AccountModalView({
+            //     el: this.$el.find('#lcb-account'),
+            //     model: this.client.user
+            // });
+            // this.tokenModal = new window.LCB.AuthTokensModalView({
+            //     el: this.$el.find('#lcb-tokens')
+            // });
+            // this.notificationsModal = new window.LCB.NotificationsModalView({
+            //     el: this.$el.find('#lcb-notifications')
+            // });
+            // this.giphyModal = new window.LCB.GiphyModalView({
+            //     el: this.$el.find('#lcb-giphy')
+            // });
             //
             // Misc
             //

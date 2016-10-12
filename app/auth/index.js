@@ -8,6 +8,8 @@ var _ = require('lodash'),
     passportSocketIo = require('passport.socketio'),
     BearerStrategy = require('passport-http-bearer'),
     BasicStrategy = require('passport-http').BasicStrategy,
+    LocalStrategy = require('passport-local').Strategy,
+    WechatStrategy = require('passport-wechat'),
     settings = require('./../config'),
     plugins = require('./../plugins');
 
@@ -57,6 +59,91 @@ function setup(app, session, core) {
 
     passport.use(new BearerStrategy(tokenAuth));
     passport.use(new BasicStrategy(tokenAuth));
+    passport.use(new WechatStrategy({
+            appID: settings.wechat.appId,
+            appSecret: settings.wechat.appSecret,
+            client: 'wechat',
+            scope: 'snsapi_userinfo',
+            state: 'STATE',
+            // passReqToCallback: true,
+            getToken: null,
+            saveToken: null
+        },
+        function(accessToken, refreshToken, result, expires_in, done) {
+            console.log(result);
+            var User = mongoose.model('User');
+            User.findByOpenId(result.openid, function(err, user) {
+                console.log('---==-=-=-=-');
+                console.log(user);
+                if (err) {
+                    return done(err, user);
+                }
+                if (!user) {
+                    User.create({
+                        openId: result.openid,
+                        unionId: result.unionid,
+                        name: result.nickname,
+                        avatar: result.headimgurl,
+                        sex: result.sex==1 ? 'M' : 'F'
+                    }, function(err, u) {
+                        // req.user = u.toObject();
+                        return done(err, u);
+                    });
+                } else {
+                    // req.user = user.toObject();
+                    return done(null, user);
+                }
+            });
+        }
+    ));
+    passport.use(new LocalStrategy(
+        function(username, password, done) {
+            console.log('local auth');
+            var User = mongoose.model('User');
+
+            // if (username == 'a') {
+            //     User.findOne({name: 'a'}, function(err, user) {
+            //         console.log('user is a:');
+            //         console.log(user);
+            //         if (!user) {
+            //             User.create({
+            //                 name: 'a',
+            //                 openId: 'aaa',
+            //                 phone: 'aaa',
+            //                 email: 'aaa@163.com',
+            //                 avatar: 'http://b.hiphotos.baidu.com/image/pic/item/a686c9177f3e670900d880193fc79f3df9dc5578.jpg'
+            //             }, function(err, u) {
+            //                 console.log(err);
+            //                 console.log(u);
+            //                 console.log('create success');
+            //             });
+            //         }
+            //     });
+            // }
+            // if (username == 'b') {
+            //     User.findOne({name: 'b'}, function(err, user) {
+            //         if (!user) {
+            //             User.create({
+            //                 name: 'b',
+            //                 openId: 'bbb',
+            //                 phone: 'bbb',
+            //                 email: 'bbb@163.com',
+            //                 avatar: 'http://h.hiphotos.baidu.com/image/pic/item/a2cc7cd98d1001e9460fd63bbd0e7bec54e797d7.jpg'
+            //             });
+            //         }
+            //     });
+            // }
+
+            User.findOne({ name: username }, function (err, user) {
+                if (err) { return done(err); }
+                if (!user) {
+                    return done(null, false, { message: 'Incorrect username.' });
+                }
+                console.log(user);
+                return done(null, user);
+            });
+        }
+    ));
 
     passport.serializeUser(function(user, done) {
         done(null, user._id);

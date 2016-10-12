@@ -110,7 +110,7 @@ app.use(require('connect-assets')({
     helperContext: bundles,
     build: settings.env === 'production',
     fingerprinting: settings.env === 'production',
-    servePath: 'media/dist'
+    servePath: '/media/dist'
 }));
 
 // Public
@@ -137,8 +137,8 @@ function wrapBundler(func) {
     // Making them relative, and not absolute
     return function() {
         return func.apply(func, arguments)
-                   .replace(/href="\//g, 'href="./')
-                   .replace(/src="\//g, 'src="./');
+                   .replace(/href="\//g, 'href="/')
+                   .replace(/src="\//g, 'src="/');
     };
 }
 

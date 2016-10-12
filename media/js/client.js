@@ -4,28 +4,6 @@
 
 (function(window, $, _) {
 
-    var TopicStore = {
-        add: function(id) {
-            var topics = store.get('opentopics') || [];
-            if (!_.contains(topics, id)) {
-                topics.push(id);
-                store.set('opentopics', topics);
-            }
-        },
-        remove: function(id) {
-            var topics = store.get('opentopics') || [];
-            if (_.contains(topics, id)) {
-                store.set('opentopics', _.without(topics, id));
-            }
-        },
-        get: function() {
-            var topics = store.get('opentopics') || [];
-            topics = _.uniq(topics);
-            store.set('opentopics', topics);
-            return topics;
-        }
-    };
-
     //
     // Base
     //
@@ -34,122 +12,23 @@
         this.status = new Backbone.Model();
         this.user = new UserModel();
         this.users = new UsersCollection();
-        this.topics = new TopicsCollection();
+        this.topic = new TopicModel();
         this.events = _.extend({}, Backbone.Events);
         return this;
     };
-    //
-    // Account
-    //
+
     Client.prototype.getUser = function() {
         var that = this;
         this.socket.emit('account:whoami', function(user) {
             that.user.set(user);
         });
     };
-    Client.prototype.updateProfile = function(profile) {
-        var that = this;
-        this.socket.emit('account:profile', profile, function(user) {
-            that.user.set(user);
-        });
-    };
 
-    //
-    // Topics
-    //
-    Client.prototype.createTopic = function(data) {
-        var that = this;
-        var topic = {
-            name: data.name,
-            slug: data.slug,
-            description: data.description,
-            password: data.password,
-            participants: data.participants,
-            private: data.private
-        };
-        var callback = data.callback;
-        this.socket.emit('topics:create', topic, function(topic) {
-            if (topic && topic.errors) {
-                swal("Unable to create topic",
-                     "Topic slugs can only contain lower case letters, numbers or underscores!",
-                     "error");
-            } else if (topic && topic.id) {
-                that.addTopic(topic);
-                that.switchTopic(topic.id);
-            }
-            callback && callback(topic);
-        });
-    };
-    Client.prototype.getTopics = function(cb) {
-        var that = this;
-        this.socket.emit('topics:list', { users: true }, function(topics) {
-            that.topics.set(topics);
-            // Get users for each topic!
-            // We do it here for the topic browser
-            _.each(topics, function(topic) {
-                if (topic.users) {
-                    that.setUsers(topic.id, topic.users);
-                }
-            });
-
-            if (cb) {
-                cb(topics);
-            }
-        });
-    };
-    Client.prototype.switchTopic = function(id) {
-        // Make sure we have a last known topic ID
-        this.topics.last.set('id', this.topics.current.get('id'));
-        if (!id || id === 'list') {
-            this.topics.current.set('id', 'list');
-            this.router.navigate('!/', {
-                replace: true
-            });
-            return;
-        }
-        var topic = this.topics.get(id);
-        if (topic && topic.get('joined')) {
-            this.topics.current.set('id', id);
-            this.router.navigate('!/topic/' + topic.id, {
-                replace: true
-            });
-            return;
-        } else if(topic) {
-            this.joinTopic(topic, true);
-        } else {
-            this.joinTopic({id: id}, true);
-        }
-    };
     Client.prototype.updateTopic = function(topic) {
         this.socket.emit('topics:update', topic);
     };
     Client.prototype.topicUpdate = function(resTopic) {
-        var topic = this.topics.get(resTopic.id);
-        if (!topic) {
-            this.addTopic(resTopic);
-            return;
-        }
-        topic.set(resTopic);
-    };
-    Client.prototype.addTopic = function(topic) {
-        var r = this.topics.get(topic.id);
-        if (r) {
-            return r;
-        }
-        return this.topics.add(topic);
-    };
-    Client.prototype.archiveTopic = function(options) {
-        this.socket.emit('topics:archive', options, function(data) {
-            if (data !== 'No Content') {
-                swal('Unable to Archive!',
-                     'Unable to archive this topic!',
-                     'error');
-            }
-        });
-    };
-    Client.prototype.topicArchive = function(topic) {
-        this.leaveTopic(topic.id);
-        this.topics.remove(topic.id);
+        this.topic.set(resTopic);
     };
     Client.prototype.rejoinTopic = function(topic) {
         this.joinTopic(topic, undefined, true);
@@ -178,14 +57,6 @@
         var id = topic.id;
         var password = topic.password;
 
-        if (!rejoin) {
-            // Must not have already joined
-            var topic1 = that.topics.get(id);
-            if (topic1 && topic1.get('joined')) {
-                return;
-            }
-        }
-
         if (!this.lockJoin(id)) {
             return;
         }
@@ -201,62 +72,60 @@
                 return;
             }
 
-            if (resTopic && resTopic.errors &&
-                resTopic.errors === 'password required') {
-
-                that.passwordModal.show({
-                    topicName: resTopic.topicName,
-                    callback: passwordCB
-                });
-
-                that.unlockJoin(id);
-                return;
-            }
+            // if (resTopic && resTopic.errors &&
+            //     resTopic.errors === 'password required') {
+            //
+            //     that.passwordModal.show({
+            //         topicName: resTopic.topicName,
+            //         callback: passwordCB
+            //     });
+            //
+            //     that.unlockJoin(id);
+            //     return;
+            // }
 
             if (resTopic && resTopic.errors) {
                 that.unlockJoin(id);
                 return;
             }
+            // console.log('res topic is :');
+            // console.log(resTopic);
+            console.log('that topic is :');
+            console.log(that.topic);
 
-            var topic = that.addTopic(resTopic);
-            topic.set('joined', true);
-
-            if (topic.get('hasPassword')) {
-                that.getTopicUsers(topic.id, _.bind(function(users) {
-                    this.setUsers(topic.id, users);
-                }, that));
-            }
+            that.topic.set('joined', true);
+            // if (that.topic.get('hasPassword')) {
+            //     that.getTopicUsers(topic.id, _.bind(function(users) {
+            //         this.setUsers(topic.id, users);
+            //     }, that));
+            // }
 
             // Get topic history
             that.getMessages({
-                topic: topic.id,
-                since_id: topic.lastMessage.get('id'),
+                topic: that.topic.id,
+                since_id: that.topic.lastMessage.get('id'),
                 take: 200,
                 expand: 'owner, topic',
                 reverse: true
             }, function(messages) {
                 messages.reverse();
-                that.addMessages(messages, !rejoin && !topic.lastMessage.get('id'));
-                !rejoin && topic.lastMessage.set(messages[messages.length - 1]);
+                that.addMessages(messages, !rejoin && !that.topic.lastMessage.get('id'));
+                !rejoin && that.topic.lastMessage.set(messages[messages.length - 1]);
             });
 
             if (that.options.filesEnabled) {
                 that.getFiles({
-                    topic: topic.id,
+                    topic: that.topic.id,
                     take: 15
                 }, function(files) {
                     files.reverse();
-                    that.setFiles(topic.id, files);
+                    that.setFiles(that.topic.id, files);
                 });
             }
             // Do we want to switch?
-            if (switchTopic) {
-                that.switchTopic(id);
-            }
-            //
-            // Add topic id to localstorage so we can reopen it on refresh
-            //
-            TopicStore.add(id);
+            // if (switchTopic) {
+            //     that.switchTopic(id);
+            // }
 
             that.unlockJoin(id);
         });
@@ -275,8 +144,18 @@
             var topic = this.topics.get(this.topics.last.get('id'));
             this.switchTopic(topic && topic.get('joined') ? topic.id : '');
         }
-        // Remove topic id from localstorage
-        TopicStore.remove(id);
+    };
+    Client.prototype.getTopic = function() {
+        var that = this;
+        var topicId = $("#topicId").val();
+        console.log('topic id is: ' + topicId);
+        this.socket.emit('topics:get', { topicId: topicId }, function(data) {
+            console.log('topics get------>');
+            console.log(data);
+            that.topic.set(data.topic);
+            console.log(that.topic.toJSON());
+            that.joinTopic({id: that.topic.id});
+        });
     };
     Client.prototype.getTopicUsers = function(id, callback) {
         this.socket.emit('topics:users', {
@@ -287,16 +166,11 @@
     // Messages
     //
     Client.prototype.addMessage = function(message) {
-        var topic = this.topics.get(message.topic);
-        if (!topic || !message) {
-            // Unknown topic, nothing to do!
-            return;
-        }
-        topic.set('lastActive', message.posted);
+        this.topic.set('lastActive', message.posted);
         if (!message.historical) {
-            topic.lastMessage.set(message);
+            this.topic.lastMessage.set(message);
         }
-        topic.trigger('messages:new', message);
+        this.topic.trigger('messages:new', message);
     };
     Client.prototype.addMessages = function(messages, historical) {
         _.each(messages, function(message) {
@@ -327,20 +201,10 @@
             // Nothing to do here...
             return;
         }
-        var topic = this.topics.get(topicId);
-        if (!topic) {
-            // No topic
-            return;
-        }
-        topic.files.set(files);
+        this.topic.files.set(files);
     };
     Client.prototype.addFile = function(file) {
-        var topic = this.topics.get(file.topic);
-        if (!topic) {
-            // No topic
-            return;
-        }
-        topic.files.add(file);
+        this.topic.files.add(file);
     };
     //
     // Users
@@ -350,28 +214,13 @@
             // Data is not valid
             return;
         }
-        var topic = this.topics.get(topicId);
-        if (!topic) {
-            // No topic
-            return;
-        }
-        topic.users.set(users);
+        this.topic.users.set(users);
     };
     Client.prototype.addUser = function(user) {
-        var topic = this.topics.get(user.topic);
-        if (!topic) {
-            // No topic
-            return;
-        }
-        topic.users.add(user);
+        this.topic.users.add(user);
     };
     Client.prototype.removeUser = function(user) {
-        var topic = this.topics.get(user.topic);
-        if (!topic) {
-            // No topic
-            return;
-        }
-        topic.users.remove(user.id);
+        this.topic.users.remove(user.id);
     };
     Client.prototype.updateUser = function(user) {
         // Update if current user
@@ -409,7 +258,7 @@
         if (!this.extras.emotes) {
             // Use AJAX, so we can take advantage of HTTP caching
             // Also, it's a promise - which ensures we only load emotes once
-            this.extras.emotes = $.get('./extras/emotes');
+            this.extras.emotes = $.get('/extras/emotes');
         }
         if (callback) {
             this.extras.emotes.done(callback);
@@ -420,7 +269,7 @@
         if (!this.extras.replacements) {
             // Use AJAX, so we can take advantage of HTTP caching
             // Also, it's a promise - which ensures we only load emotes once
-            this.extras.replacements = $.get('./extras/replacements');
+            this.extras.replacements = $.get('/extras/replacements');
         }
         if (callback) {
             this.extras.replacements.done(callback);
@@ -431,15 +280,15 @@
     // Router Setup
     //
     Client.prototype.route = function() {
+        console.log('in route');
         var that = this;
         var Router = Backbone.Router.extend({
             routes: {
-                '!/topic/': 'list',
-                '!/topic/:id': 'join',
-                '*path': 'list'
+                '/topics/:topic/topics/:topic/chat': 'join'
             },
-            join: function(id) {
-                that.switchTopic(id);
+            join: function(topic, topic) {
+                console.log('join----------->');
+                console.log(topic);
             },
             list: function() {
                 that.switchTopic('list');
@@ -454,31 +303,12 @@
     Client.prototype.listen = function() {
         var that = this;
 
-        function joinTopics(topics) {
-            //
-            // Join topics from localstorage
-            // We need to check each topic is available before trying to join
-            //
-            var topicIds = _.map(topics, function(topic) {
-                return topic.id;
-            });
-
-            var openTopics = TopicStore.get();
-            // Let's open some topics!
-            _.defer(function() {
-                //slow down because router can start a join with no password
-                _.each(openTopics, function(id) {
-                    if (_.contains(topicIds, id)) {
-                        that.joinTopic({ id: id });
-                    }
-                });
-            }.bind(this));
-        }
-
-        var path = '/' + _.compact(
-            window.location.pathname.split('/').concat(['socket.io'])
-        ).join('/');
-        console.log('====>path: ' + path);
+        // var path = '/' + _.compact(
+        //     window.location.pathname.split('/').concat(['socket.io'])
+        // ).join('/');
+        // console.log('====>path: ' + path);
+        path = '/socket.io';
+        // path = 'http://localhost:5000/socket.io';
 
         //
         // Socket
@@ -490,28 +320,32 @@
             reconnectionDelayMax: 1000,
             timeout: 3000
         });
+        console.log('gonna connect path: ' + path);
         this.socket.on('connect', function() {
+            console.log('connected--------->');
             that.getUser();
-            that.getTopics(joinTopics);
+            that.getTopic();
             that.status.set('connected', true);
         });
+        this.socket.on('connect_error', function() {
+            console.log('connect_error');
+        });
+        this.socket.on('connect_timeout', function() {
+            console.log('connect_timeout');
+        });
+        this.socket.on('reconnect attempt', function() {
+            console.log('reconnect attempt');
+        });
         this.socket.on('reconnect', function() {
-            _.each(that.topics.where({ joined: true }), function(topic) {
-                that.rejoinTopic(topic);
-            });
+            // _.each(that.topics.where({ joined: true }), function(topic) {
+            //     that.rejoinTopic(topic);
+            // });
         });
         this.socket.on('messages:new', function(message) {
             that.addMessage(message);
         });
-        this.socket.on('topics:new', function(data) {
-            console.log('topic create!');
-            that.addTopic(data);
-        });
         this.socket.on('topics:update', function(topic) {
             that.topicUpdate(topic);
-        });
-        this.socket.on('topics:archive', function(topic) {
-            that.topicArchive(topic);
         });
         this.socket.on('users:join', function(user) {
             that.addUser(user);
@@ -534,10 +368,6 @@
         this.events.on('messages:send', this.sendMessage, this);
         this.events.on('topics:update', this.updateTopic, this);
         this.events.on('topics:leave', this.leaveTopic, this);
-        this.events.on('topics:create', this.createTopic, this);
-        this.events.on('topics:switch', this.switchTopic, this);
-        this.events.on('topics:archive', this.archiveTopic, this);
-        this.events.on('profile:update', this.updateProfile, this);
         this.events.on('topics:join', this.joinTopic, this);
     };
     //

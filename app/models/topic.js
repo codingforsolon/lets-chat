@@ -11,9 +11,13 @@ var mongoose = require('mongoose'),
 var ObjectId = mongoose.Schema.Types.ObjectId;
 
 var TopicSchema = new mongoose.Schema({
-    roomId: {
+    room: {
         type: ObjectId,
         ref: 'Room'
+    },
+    owner: {
+        type: ObjectId,
+        ref: 'User'
     },
     type: {
         type: String,
@@ -57,6 +61,14 @@ var TopicSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    participants: [{ // We can have an array per role
+        type: ObjectId,
+        ref: 'User'
+    }],
+    messages: [{
+        type: ObjectId,
+        ref: 'Message'
+    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -67,28 +79,32 @@ var TopicSchema = new mongoose.Schema({
     }
 });
 
-TopicSchema.virtual('handle').get(function() {
-    return this.slug || this.name.replace(/\W/i, '');
-});
+TopicSchema.statics.findById = function(id, cb) {
+    this.findOne({_id: id}, cb);
+};
 
-TopicSchema.virtual('hasPassword').get(function() {
-    return !!this.password;
-});
+// TopicSchema.virtual('handle').get(function() {
+//     return this.slug || this.name.replace(/\W/i, '');
+// });
+//
+// TopicSchema.virtual('hasPassword').get(function() {
+//     return !!this.password;
+// });
 
-TopicSchema.pre('save', function(next) {
-    var topic = this;
-    if (!topic.password || !topic.isModified('password')) {
-        return next();
-    }
-
-    bcrypt.hash(topic.password, 10, function(err, hash) {
-        if (err) {
-            return next(err);
-        }
-        topic.password = hash;
-        next();
-    });
-});
+// TopicSchema.pre('save', function(next) {
+//     var topic = this;
+//     if (!topic.password || !topic.isModified('password')) {
+//         return next();
+//     }
+//
+//     bcrypt.hash(topic.password, 10, function(err, hash) {
+//         if (err) {
+//             return next(err);
+//         }
+//         topic.password = hash;
+//         next();
+//     });
+// });
 
 TopicSchema.plugin(uniqueValidator, {
     message: 'Expected {PATH} to be unique'
@@ -174,31 +190,30 @@ TopicSchema.method('toJSON', function(user) {
     var userId = user ? (user._id || user.id || user) : null;
     var authorized = false;
 
-    if (userId) {
-        authorized = this.isAuthorized(userId);
-    }
+    // if (userId) {
+    //     authorized = this.isAuthorized(userId);
+    // }
 
     var topic = this.toObject();
 
     var data = {
         id: topic._id,
-        slug: topic.slug,
-        name: topic.name,
+        room: topic.room,
+        title: topic.title,
         description: topic.description,
-        lastActive: topic.lastActive,
-        created: topic.created,
+        updatedAt: topic.updatedAt,
+        createdAt: topic.createdAt,
         owner: topic.owner,
-        private: topic.private,
         hasPassword: this.hasPassword,
         participants: []
     };
 
-    if (topic.private && authorized) {
-        var participants = this.participants || [];
-        data.participants = participants.map(function(user) {
-            return user.username ? user.username : user;
-        });
-    }
+    // if (topic.private && authorized) {
+    //     var participants = this.participants || [];
+    //     data.participants = participants.map(function(user) {
+    //         return user.username ? user.username : user;
+    //     });
+    // }
 
     if (this.users) {
         data.users = this.users;
@@ -207,6 +222,10 @@ TopicSchema.method('toJSON', function(user) {
 
     return data;
  });
+
+TopicSchema.virtual('hasPassword').get(function() {
+    return !!this.password;
+});
 
 TopicSchema.statics.findByIdOrSlug = function(identifier, cb) {
     var opts = {

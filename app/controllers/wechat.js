@@ -6,7 +6,8 @@
 
 var _ = require('lodash'),
     settings = require('./../config'),
-    wechat = require('wechat');
+    wechat = require('wechat'),
+    passport = require('passport');
 
 module.exports = function() {
 
@@ -21,7 +22,6 @@ module.exports = function() {
         token: settings.wechat.token,
         encodingAESKey: settings.wechat.aesKey
     };
-    console.log('---before wechat');
 
     //
     // Routes
@@ -35,4 +35,6 @@ module.exports = function() {
             console.log('it`s unsubscribe');
         }
     }));
+
+    // app.get('/auth/wechat', passport.authenticate('wechat'));
 };
