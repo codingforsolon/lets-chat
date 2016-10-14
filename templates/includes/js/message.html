@@ -10,9 +10,16 @@
                         <span class="lcb-message-displayname">
                             {{owner.name}}
                         </span>
+                        {{#if isGuest }}
                         <span class="lcb-message-username">
-                            @{{owner.name}}
+                            观众
                         </span>
+                        {{/if}}
+                        {{#if isHost }}
+                        <span class="lcb-message-username">
+                            主持人
+                        </span>
+                        {{/if}}
                     </span>
                 </span>
                 <time class="lcb-message-time" title="{{posted}}"></time>

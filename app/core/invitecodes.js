@@ -4,30 +4,22 @@ var mongoose = require('mongoose'),
     _ = require('lodash'),
     helpers = require('./helpers');
 
-function RoomManager(options) {
+function InviteCodeManager(options) {
     this.core = options.core;
 }
 
-RoomManager.prototype.create = function(options, cb) {
-    var Room = mongoose.model('Room');
-    var r = new Room();
-    r.name = options.name;
-    r.owner = options.owner;
-    r.admins.push(options.owner);
-    r.save(function(err, room) {
-        console.log('in create');
-        if (err) {
-            return cb(err);
-        }
+InviteCodeManager.prototype.create = function(options, cb) {
+    var InviteCode = mongoose.model('InviteCode');
+    InviteCode.create({
+        code: options.code,
+        type: options.type,
+        expiredAt: _.now()
+    }, function(err, inviteCode) {
 
-
-        if (cb) {
-            cb(null, room);
-        }
     });
 };
 
-RoomManager.prototype.findByOwner = function(owner, cb) {
+InviteCodeManager.prototype.findByOwner = function(owner, cb) {
     var Room = mongoose.model('Room');
     Room.findOne({owner: owner}).exec(function(err, room) {
         if (err) {
@@ -39,7 +31,7 @@ RoomManager.prototype.findByOwner = function(owner, cb) {
     });
 };
 
-RoomManager.prototype.update = function(roomId, options, cb) {
+InviteCodeManager.prototype.update = function(roomId, options, cb) {
     var Room = mongoose.model('Room');
 
     Room.findById(roomId, function(err, room) {
@@ -59,7 +51,7 @@ RoomManager.prototype.update = function(roomId, options, cb) {
     }.bind(this));
 };
 
-RoomManager.prototype.findOne = function(options, cb) {
+InviteCodeManager.prototype.findOne = function(options, cb) {
     var Room = mongoose.model('Room');
     Room.findOne(options.criteria)
         .populate('participants').exec(function(err, room) {
@@ -74,7 +66,7 @@ RoomManager.prototype.findOne = function(options, cb) {
     }.bind(this));
 };
 
-RoomManager.prototype.get = function(options, cb) {
+InviteCodeManager.prototype.get = function(options, cb) {
     var identifier;
 
     if (typeof options === 'string') {
@@ -93,4 +85,4 @@ RoomManager.prototype.get = function(options, cb) {
     this.findOne(options, cb);
 };
 
-module.exports = RoomManager;
+module.exports = InviteCodeManager;

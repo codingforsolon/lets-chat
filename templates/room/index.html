@@ -1,0 +1,12 @@
+<html>
+<head></head>
+<body>
+<h1><$ room.name $>直播室主页</h1>
+<% if topics.length > 0 %>
+    <% for topic in topics %>
+    <p><a href="/rooms/<$ room.id $>/topics/<$ topic.id $>?username=<$ user.name $>&password=b"><$ topic.title $></a></p>
+    <% endfor %>
+<% endif %>
+<h2><a href="/rooms/<$ room.id $>/topics">创建话题</a></h2>
+</body>
+</html>

@@ -167,7 +167,7 @@ TopicManager.prototype.findOne = function(options, cb) {
             return cb(err);
         }
 
-        this.sanitizeTopic(options, topic);
+        // this.sanitizeTopic(options, topic);
         cb(err, topic);
 
     }.bind(this));
@@ -208,6 +208,13 @@ TopicManager.prototype.slug = function(options, cb) {
     };
 
     this.findOne(options, cb);
+};
+
+TopicManager.prototype.findByRoom = function (options, cb) {
+    var Topic = mongoose.model('Topic');
+    Topic.find({room: options.room}, function(err, topics) {
+        cb(err, topics);
+    });
 };
 
 module.exports = TopicManager;

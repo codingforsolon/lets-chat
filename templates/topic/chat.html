@@ -1,0 +1,55 @@
+<% extends 'base.html' %>
+
+<% block css %><% endblock %>
+
+<% block js %>
+<$ 'chat' | js | safe $>
+<% endblock %>
+
+<% block templates %>
+    <% include 'includes/js/topic.html' %>
+    <% include 'includes/js/user.html' %>
+    <% include 'includes/js/file.html' %>
+    <% include 'includes/js/message.html' %>
+    <% include 'includes/js/tab.html' %>
+    <% include 'includes/js/browser-item.html' %>
+    <% include 'includes/js/browser-item-user.html' %>
+    <% include 'includes/js/upload.html' %>
+<% endblock %>
+
+<% block body %>
+    <div id="lcb-client" class="lcb-client">
+        <section class="lcb-panes">
+            <input id="topicId" type="hidden" value="<$ topic._id $>" />
+            <div class="lcb-topics-browser lcb-pane hide" data-id="list">
+                <header class="lcb-topic-header">
+                    <div class="lcb-topic-meta">
+                        <h2 class="lcb-topic-heading lcb-topic-heading-loud"><$ __('All Topics') $></h2>
+                    </div>
+                    <div class="lcb-topics-browser-filter">
+                        <label class="lcb-topics-browser-filter-label" for="lcb-topics-browser-filter-input">
+                            <i class="fa fa-search" aria-label="<$ __('Search') $>"></i>
+                        </label>
+                        <input id="lcb-topics-browser-filter-input" class="lcb-topics-browser-filter-input" type="search" autofocus placeholder="<$ __('Find a topic...') $>" />
+                    </div>
+                    <div class="lcb-topic-header-actions">
+                        <a class="btn btn-success lcb-topics-browser-new" data-toggle="modal" data-target="#lcb-add-topic" href="#!/topics/add">
+                            <i class="fa fa-plus" aria-label="<$ __('Add Topic') $>"></i>
+                        </a>
+                    </div>
+                </header>
+                <header class="lcb-topics-browser-header hide">
+                    <h2 class="lcb-topics-browser-heading">
+                        <$ __('All Topics') $>
+                    </h2>
+
+
+                </header>
+                <ul class="lcb-topics-list"></ul>
+                <% include 'includes/modals/add-topic.html' %>
+                <% include 'includes/modals/password.html' %>
+            </div>
+        </section>
+        <% include 'includes/modals/upload.html' %>
+    </div><!-- lcb-client end -->
+<% endblock %>

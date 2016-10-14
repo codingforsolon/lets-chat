@@ -116,7 +116,9 @@ module.exports = function() {
         .all(middlewares.wechatAuth, middlewares.roomRoute, middlewares.topicRoute)
         .get(function(req, res) {
             res.render('topic/index.html', {
-                topic: req.params.topic
+                room: req.params.room,
+                topic: req.params.topic,
+                user: req.user
             });
         })
         .put(function(req) {

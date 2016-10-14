@@ -101,7 +101,7 @@ MessageManager.prototype.list = function(options, cb) {
         }
 
         if (_.includes(includes, 'topic')) {
-            find.populate('topic', 'id title');
+            find.populate('topic', 'id title owner');
         }
     }
 

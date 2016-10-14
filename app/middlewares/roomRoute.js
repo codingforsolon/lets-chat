@@ -10,19 +10,26 @@ module.exports = function(req, res, next) {
     var room = req.params.room;
 
     if (!room) {
-        return res.sendStatus(404);
+        return res.redirect('/rooms');
     }
 
     console.log('room id: ' + room);
 
     var Room = mongoose.model('Room');
 
-    Room.findById(room, function(err, room) {
+    Room.findOne({_id: room, owner: req.user}, function(err, room) {
         if (err) {
-            return res.sendStatus(400);
+            return res.status(400).json(err);
         }
         if (!room) {
-            return res.sendStatus(404);
+            Room.findOne({_id: room, admins: {"$in": [req.user]}}, function(err, room) {
+                if (err) {
+                    return res.status(400).json(err);
+                }
+                if (!room) {
+                    return res.sendStatus(404);
+                }
+            });
         }
 
         var roomId = room._id.toString();

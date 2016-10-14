@@ -377,13 +377,20 @@
             // WHATS MY NAME
             message.mentioned = new RegExp('\\B@(' + this.client.user.get('username') + '|all)(?!@)\\b', 'i').test(message.text);
 
+            console.log('~~~~~~~~~~~~>');
+            // console.log(message);
+            // console.log(_.extend(message, this.model.toJSON()));
+            if (message.owner.id == this.model.get('owner')) {
+                message.isHost = true;
+            } else {
+                message.isGuest = true;
+            }
             // Templatin' time
             var $html = $(this.messageTemplate(message).trim());
             var $text = $html.find('.lcb-message-text');
 
             console.log('add message');
             console.log(message);
-            console.log($html.html());
 
             var that = this;
             this.formatMessage($text.html(), function(text) {
